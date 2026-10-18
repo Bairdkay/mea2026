@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin | Mchinji Entertainment Awards</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+  <!-- ============ LOGIN ============ -->
+  <main id="login-view" class="login-wrap" hidden>
+    <form id="login-form" class="login-card" autocomplete="on">
+      <img src="assets/logo.png" alt="MEA" class="login-logo">
+      <h1>Admin</h1>
+      <p class="muted">Sign in to manage the awards.</p>
+
+      <label for="email">Email</label>
+      <input id="email" type="email" autocomplete="username" required>
+
+      <label for="password">Password</label>
+      <input id="password" type="password" autocomplete="current-password" required>
+
+      <p id="login-error" class="error" role="alert" hidden></p>
+      <button type="submit" class="btn btn-gold" id="login-btn">Sign in</button>
+    </form>
+  </main>
+
+  <!-- ============ DASHBOARD ============ -->
+  <div id="app-view" hidden>
+    <header class="admin-top">
+      <div class="admin-top-inner">
+        <span class="admin-brand">MEA <b>Admin</b></span>
+        <nav class="admin-tabs" role="tablist">
+          <button class="tab active" data-tab="results" role="tab">Results</button>
+          <button class="tab" data-tab="artists" role="tab">Artists</button>
+          <button class="tab" data-tab="news" role="tab">News</button>
+          <button class="tab" data-tab="events" role="tab">Events</button>
+          <button class="tab" data-tab="gallery" role="tab">Gallery</button>
+          <button class="tab" data-tab="partners" role="tab">Partners</button>
+          <button class="tab" data-tab="settings" role="tab">Settings</button>
+        </nav>
+        <button id="logout-btn" class="btn btn-ghost">Log out</button>
+      </div>
+    </header>
+
+    <main class="admin-main">
+
+      <!-- RESULTS -->
+      <section id="tab-results" class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Live results</h2>
+            <p class="muted" id="results-meta">Loading…</p>
+          </div>
+          <div class="row">
+            <button id="refresh-results" class="btn btn-ghost">Refresh</button>
+            <button id="export-csv" class="btn btn-ghost">Download CSV</button>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="stat"><span id="stat-total">0</span><small>Total votes</small></div>
+          <div class="stat"><span id="stat-artists">0</span><small>Artists</small></div>
+          <div class="stat"><span id="stat-status">–</span><small>Voting</small></div>
+        </div>
+        <input id="results-search" class="search" type="search" placeholder="Search a category…">
+        <div id="results-list"></div>
+      </section>
+
+      <!-- ARTISTS -->
+      <section id="tab-artists" class="panel" hidden>
+        <div class="panel-head">
+          <div>
+            <h2>Artists</h2>
+            <p class="muted">Pick a category, then add or edit its artists.</p>
+          </div>
+        </div>
+
+        <label for="artist-category" class="field-label">Category</label>
+        <select id="artist-category"></select>
+
+        <form id="add-artist-form" class="add-form">
+          <input id="new-artist-name" type="text" placeholder="New artist name" maxlength="80" required>
+          <button type="submit" class="btn btn-gold">Add artist</button>
+        </form>
+
+        <div id="artist-list"></div>
+      </section>
+
+      <!-- NEWS -->
+      <section id="tab-news" class="panel" hidden>
+        <div class="panel-head">
+          <div>
+            <h2>News</h2>
+            <p class="muted">Posts shown in the News Room, newest first.</p>
+          </div>
+        </div>
+
+        <form id="news-form" class="content-form">
+          <input type="hidden" id="news-id">
+          <label for="news-title" class="field-label">Title</label>
+          <input id="news-title" type="text" maxlength="140" required>
+          <label for="news-summary" class="field-label">Short summary (shown on the card)</label>
+          <input id="news-summary" type="text" maxlength="220">
+          <label for="news-body" class="field-label">Full story (leave a blank line between paragraphs)</label>
+          <textarea id="news-body" rows="6"></textarea>
+          <div class="two-col">
+            <div>
+              <label for="news-date" class="field-label">Date</label>
+              <input id="news-date" type="date" required>
+            </div>
+            <div>
+              <label for="news-cover" class="field-label">Cover photo</label>
+              <input id="news-cover" type="file" accept="image/*">
+            </div>
+          </div>
+          <label class="check"><input id="news-published" type="checkbox" checked> Published (visible on the website)</label>
+          <div class="row">
+            <button type="submit" class="btn btn-gold" id="news-save">Save post</button>
+            <button type="button" class="btn btn-ghost" id="news-cancel" hidden>Cancel edit</button>
+          </div>
+        </form>
+
+        <div id="news-list"></div>
+      </section>
+
+      <!-- EVENTS -->
+      <section id="tab-events" class="panel" hidden>
+        <div class="panel-head">
+          <div>
+            <h2>Events</h2>
+            <p class="muted">Event days appear on the calendar and in "Upcoming Events".</p>
+          </div>
+        </div>
+
+        <form id="event-form" class="content-form">
+          <input type="hidden" id="ev-id">
+          <label for="ev-title" class="field-label">Event name</label>
+          <input id="ev-title" type="text" maxlength="120" required>
+          <div class="two-col">
+            <div>
+              <label for="ev-date" class="field-label">Date</label>
+              <input id="ev-date" type="date" required>
+            </div>
+            <div>
+              <label for="ev-time" class="field-label">Time (optional, e.g. 6:00 PM)</label>
+              <input id="ev-time" type="text" maxlength="40">
+            </div>
+          </div>
+          <div class="row">
+            <button type="submit" class="btn btn-gold">Save event</button>
+            <button type="button" class="btn btn-ghost" id="ev-cancel" hidden>Cancel edit</button>
+          </div>
+        </form>
+
+        <div id="event-admin-list"></div>
+      </section>
+
+      <!-- GALLERY -->
+      <section id="tab-gallery" class="panel" hidden>
+        <div class="panel-head">
+          <div>
+            <h2>Gallery</h2>
+            <p class="muted">Photos in the automatic slider.</p>
+          </div>
+        </div>
+
+        <form id="gallery-form" class="content-form">
+          <label for="gal-files" class="field-label">Add photos (you can pick several)</label>
+          <input id="gal-files" type="file" accept="image/*" multiple required>
+          <label for="gal-caption" class="field-label">Caption (optional, used for all photos you add now)</label>
+          <input id="gal-caption" type="text" maxlength="120">
+          <div class="row"><button type="submit" class="btn btn-gold">Upload photos</button></div>
+        </form>
+
+        <div id="gallery-admin-list"></div>
+      </section>
+
+      <!-- PARTNERS -->
+      <section id="tab-partners" class="panel" hidden>
+        <div class="panel-head">
+          <div>
+            <h2>Partners</h2>
+            <p class="muted">Logos shown at the bottom of the News Room.</p>
+          </div>
+        </div>
+
+        <form id="partner-form" class="content-form">
+          <input type="hidden" id="pt-id">
+          <label for="pt-name" class="field-label">Partner name</label>
+          <input id="pt-name" type="text" maxlength="100" required>
+          <div class="two-col">
+            <div>
+              <label for="pt-url" class="field-label">Website (optional)</label>
+              <input id="pt-url" type="url" placeholder="https://">
+            </div>
+            <div>
+              <label for="pt-logo" class="field-label">Logo</label>
+              <input id="pt-logo" type="file" accept="image/*">
+            </div>
+          </div>
+          <div class="row">
+            <button type="submit" class="btn btn-gold">Save partner</button>
+            <button type="button" class="btn btn-ghost" id="pt-cancel" hidden>Cancel edit</button>
+          </div>
+        </form>
+
+        <div id="partner-admin-list"></div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section id="tab-settings" class="panel" hidden>
+        <div class="panel-head">
+          <div>
+            <h2>Settings</h2>
+            <p class="muted">Control the public voting.</p>
+          </div>
+        </div>
+
+        <div class="setting-card">
+          <div>
+            <h3>Voting</h3>
+            <p class="muted" id="voting-text">–</p>
+          </div>
+          <button id="toggle-voting" class="btn btn-gold">–</button>
+        </div>
+
+        <form id="venue-form" class="content-form venue-form">
+          <h3>Venue</h3>
+          <label for="ven-name" class="field-label">Venue name</label>
+          <input id="ven-name" type="text" maxlength="120">
+          <label for="ven-address" class="field-label">Address</label>
+          <input id="ven-address" type="text" maxlength="200">
+          <label for="ven-map" class="field-label">Google Maps link (optional)</label>
+          <input id="ven-map" type="url" placeholder="https://maps.google.com/...">
+          <div class="row"><button type="submit" class="btn btn-gold">Save venue</button></div>
+        </form>
+
+      </section>
+
+    </main>
+
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script src="supabase.config.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

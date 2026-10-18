@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MEA</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-container">
+
+      <a href="#" class="logo">
+        <img src="assets/logo.png" alt="MEA logo">
+      </a>
+
+      <nav class="navbar">
+        <ul class="nav-links" id="nav-links">
+          <li><a href="index.html" class="current" aria-current="page">Home</a></li>
+          <li><a href="categories.html">Categories</a></li>
+        <li><a href="news.html">News</a></li>
+         <li><a href="about.html">About</a></li>
+        </ul>
+
+        <a href="categories.html" class="vote-btn">Vote</a>
+
+         <button class="menu-toggle" type="button"
+                aria-label="Toggle navigation"
+                aria-expanded="false"
+                aria-controls="nav-links">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </nav>
+
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <p class="hero-eyebrow">Welcome to the</p>
+      <h1 class="hero-title">
+        <img class="hero-logo" src="assets/logo2.png" alt="Mchinji">
+        Mchinji Entertainment <span>Awards 2026</span>
+      </h1>
+      <p class="hero-text">
+        Celebrating the artists, creators and entertainers who make Mchinji
+        shine. Explore the categories and vote for your favourites.
+      </p>
+
+      <div class="hero-actions">
+        <a href="categories.html" class="btn btn-outline">Vote Now</a>
+      </div>
+    </section>
+  </main>
+
+ <script src="js/script.js"></script>
+  <script src="supabase.config.js"></script>
+  <script src="js/categories.js"></script>
+  </script>
+</body>
+</html>

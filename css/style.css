@@ -1,0 +1,352 @@
+/* ---------- Fonts ---------- */
+
+@font-face {
+  font-family: "Neue Montreal";
+  src: url("../assets/fonts/NeueMontreal-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Galhau Display";
+  src: url("../assets/fonts/GalhauDisplay-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Neue Montreal", Arial, sans-serif;
+  font-weight: 500;
+  font-synthesis: none; /* no fake bold: only real font weights are used */
+  min-height: 100vh;
+  color: #ffffff;
+  background-color: #030201;
+  isolation: isolate;
+}
+
+button {
+  font-family: inherit;
+}
+
+/* Headings use Galhau Display Bold */
+h1,
+h2,
+h3,
+.hero-title,
+.page-title,
+.modal-title {
+  font-family: "Galhau Display", Georgia, serif;
+  font-weight: 700;
+}
+
+/* ---------- Background ---------- */
+
+/* Soft bronze haze (fixed while scrolling) */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    radial-gradient(ellipse 14% 60% at 6% 38%, rgba(88, 68, 40, 0.38), transparent 72%),
+    radial-gradient(ellipse 12% 30% at 14% 8%, rgba(60, 48, 30, 0.28), transparent 75%),
+    radial-gradient(ellipse 28% 14% at 92% 8%, rgba(78, 62, 36, 0.34), transparent 75%),
+    radial-gradient(ellipse 34% 14% at 38% 90%, rgba(46, 34, 20, 0.5), transparent 75%),
+    radial-gradient(ellipse at 50% 45%, #000 30%, transparent 85%);
+}
+
+/* Gold arc, bottom right (fixed while scrolling) */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent 25%, #000 80%);
+          mask-image: linear-gradient(90deg, transparent 25%, #000 80%);
+  background:
+    radial-gradient(circle 73vmax at 45% calc(100% - 71vmax),
+      transparent 0 96.6%,
+      rgba(150, 100, 30, 0.25) 97.6%,
+      rgba(214, 160, 70, 0.75) 98.7%,
+      #fff0c4 99.25%,
+      rgba(214, 160, 70, 0.55) 99.6%,
+      transparent 100%),
+    radial-gradient(circle 73vmax at 45% calc(100% - 71vmax),
+      transparent 0 93%,
+      rgba(120, 80, 20, 0.18) 95.5%,
+      rgba(190, 135, 50, 0.38) 98%,
+      rgba(214, 160, 70, 0.28) 99.3%,
+      transparent 100.6%);
+}
+
+/* ---------- Header ---------- */
+
+.header {
+  position: relative;
+  z-index: 10;
+  background-color: rgba(17, 24, 39, 0.6);
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 8%;
+}
+
+.logo img {
+  width: 55px;
+  height: 55px;
+  object-fit: contain;
+  display: block;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  list-style: none;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+  transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+  color: #d4af37;
+}
+
+.vote-btn {
+  background-color: #d4af37;
+  color: #111827;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  text-decoration: none;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.vote-btn:hover {
+  background-color: #b8962e;
+  color: white;
+}
+
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* ---------- Hero ---------- */
+
+.hero {
+  min-height: calc(100vh - 85px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 60px 8%;
+}
+
+.hero-eyebrow {
+  color: #d4af37;
+  font-size: 14px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+
+.hero-title {
+  font-size: clamp(2.2rem, 6vw, 4.5rem);
+  line-height: 1.1;
+  font-weight: 700;
+  max-width: 900px;
+}
+
+.hero-logo {
+  display: block;
+  height: clamp(90px, 18vw, 160px);
+  width: auto;
+  margin: 0 auto 16px;
+  object-fit: contain;
+}
+
+.hero-title span {
+  display: block;
+  background: linear-gradient(90deg, #b8862e, #fff0c4, #d4af37);
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #d4af37; /* fallback */
+}
+
+.hero-text {
+  max-width: 680px;
+  margin-top: 26px;
+  font-size: clamp(1rem, 2.2vw, 1.15rem);
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 36px;
+}
+
+.btn {
+  display: inline-block;
+  padding: 14px 32px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  text-decoration: none;
+  transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn-gold {
+  background-color: #d4af37;
+  color: #111827;
+  border: 2px solid #d4af37;
+}
+
+.btn-gold:hover {
+  background-color: #b8962e;
+  border-color: #b8962e;
+  color: #fff;
+}
+
+.btn-outline {
+  background: transparent;
+  color: #d4af37;
+  border: 2px solid #d4af37;
+}
+
+.btn-outline:hover {
+  background-color: #d4af37;
+  color: #111827;
+}
+
+@media (max-width: 480px) {
+  .hero {
+    padding: 40px 6%;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* ---------- Shared ---------- */
+
+.nav-links a.current {
+  color: #d4af37;
+}
+
+.footer {
+  padding: 24px 8%;
+  text-align: center;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.55);
+  border-top: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+/* ---------- Mobile ---------- */
+
+@media (max-width: 768px) {
+  .header-container {
+    padding: 12px 5%;
+  }
+
+  .navbar {
+    gap: 15px;
+  }
+
+  .vote-btn {
+    order: 1;
+  }
+
+  .menu-toggle {
+    order: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .menu-toggle span {
+    width: 25px;
+    height: 3px;
+    background-color: white;
+    border-radius: 3px;
+  }
+
+  .nav-links {
+    display: none;
+  }
+
+  .nav-links.active {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+
+    position: absolute;
+    top: 100%;
+    right: 5%;
+
+    background-color: #111827;
+    padding: 25px;
+    border-radius: 10px;
+  }
+
+  /* Gold arc: bigger and flatter so it shows in portrait */
+  body::after {
+    background:
+      radial-gradient(circle 120vw at 30% calc(100% - 118vw),
+        transparent 0 97.4%,
+        rgba(150, 100, 30, 0.25) 98.1%,
+        rgba(214, 160, 70, 0.75) 99%,
+        #fff0c4 99.4%,
+        rgba(214, 160, 70, 0.55) 99.7%,
+        transparent 100%),
+      radial-gradient(circle 120vw at 30% calc(100% - 118vw),
+        transparent 0 95%,
+        rgba(190, 135, 50, 0.35) 98.5%,
+        rgba(214, 160, 70, 0.25) 99.5%,
+        transparent 101%);
+  }
+}
