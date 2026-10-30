@@ -346,45 +346,69 @@ body::after {
   background-color: #d4af37;
   color: #111827;
 }
-/* COUNTDOWN SECTION */
 
-.countdown-section {
+/* =================================
+   MEA COUNTDOWN DESIGN
+================================= */
+
+.countdown-section,
+.voting-countdown-section {
+  position: relative;
   text-align: center;
-  padding: 60px 20px;
+  padding: 55px 20px;
+  background: transparent;
 }
 
 .countdown-label {
-  color: #b99a55;
+  color: #c9a34c;
   font-size: 11px;
+  font-weight: 600;
   letter-spacing: 4px;
+  text-transform: uppercase;
   margin-bottom: 12px;
 }
 
-.countdown-section h2 {
+.countdown-section h2,
+.voting-countdown-section h2 {
   color: #fff;
-  font-size: clamp(25px, 4vw, 38px);
+  font-size: clamp(24px, 4vw, 36px);
   margin-bottom: 30px;
+  text-transform: uppercase;
 }
+
+/* FOUR BOXES IN ONE ROW */
 
 .countdown {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+  max-width: 620px;
+  margin: 0 auto;
 }
 
+/* INDIVIDUAL TIME BOX */
+
 .time-box {
-  width: 100px;
-  padding: 20px 10px;
-  border: 1px solid rgba(185, 154, 85, 0.3);
-  border-radius: 8px;
+  min-width: 0;
+  padding: 20px 5px;
+  border: 1px solid rgba(212, 179, 106, 0.3);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.015);
   backdrop-filter: blur(10px);
+  transition: border-color 0.3s ease,
+              transform 0.3s ease;
+}
+
+.time-box:hover {
+  border-color: #d4b36a;
+  transform: translateY(-4px);
 }
 
 .time-box span {
   display: block;
   color: #d4b36a;
-  font-size: 35px;
+  font-size: clamp(21px, 5vw, 35px);
   font-weight: bold;
   font-variant-numeric: tabular-nums;
 }
@@ -392,33 +416,68 @@ body::after {
 .time-box small {
   display: block;
   color: #aaa;
-  font-size: 11px;
+  font-size: clamp(8px, 2vw, 11px);
   margin-top: 8px;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
-.countdown-footer {
-  color: #777;
-  font-size: 10px;
-  letter-spacing: 3px;
-  margin-top: 30px;
+/* COUNTDOWN FOOTER */
+
+.countdown-footer,
+.voting-message {
+  color: #888;
+  font-size: 12px;
+  letter-spacing: 2px;
+  line-height: 1.8;
+  margin-top: 25px;
 }
 
+/* VOTING STATUS */
+
+.voting-message.is-open {
+  color: #d4b36a;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.voting-message.is-closed {
+  color: #999;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* MOBILE RESPONSIVENESS */
+
 @media (max-width: 480px) {
+
+  .countdown-section,
+  .voting-countdown-section {
+    padding: 40px 15px;
+  }
+
   .countdown {
-    gap: 8px;
+    gap: 7px;
   }
 
   .time-box {
-    width: 75px;
-    padding: 15px 5px;
+    padding: 16px 2px;
+    border-radius: 8px;
   }
 
-  .time-box span {
-    font-size: 27px;
+  .time-box small {
+    letter-spacing: 0.5px;
   }
 }
+
+/* ACCESSIBILITY */
+
+@media (prefers-reduced-motion: reduce) {
+  .time-box {
+    transition: none;
+  }
+}
+
 .sponsors {
   padding: 25px 20px 40px;
   text-align: center;
