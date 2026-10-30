@@ -1,0 +1,126 @@
+/* =========================================================
+   MEA animations.
+   Load this file AFTER css/style.css and the page's own css,
+   so these rules can sit on top of your existing design.
+   To remove all animation, delete the <link> to this file.
+   ========================================================= */
+
+:root { --ease: cubic-bezier(.2, .8, .2, 1); }
+
+/* ---------- Keyframes ----------
+   A keyframe says how something changes over time. Each one below starts from
+   the "from" look and settles into the element's normal look. */
+@keyframes rise     { from { opacity: 0; transform: translateY(22px); } }
+@keyframes fade     { from { opacity: 0; } }
+@keyframes drop     { from { opacity: 0; transform: translateY(-100%); } }
+@keyframes pop-in   { from { opacity: 0; transform: scale(.9); } }
+@keyframes slide-in { from { opacity: 0; transform: translateX(-22px); } }
+@keyframes slide-up { from { opacity: 0; transform: translateY(100%); } }
+@keyframes float    { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes ring     { 0% { box-shadow: 0 0 0 0 rgba(224, 165, 38, .55); } 70%, 100% { box-shadow: 0 0 0 14px rgba(224, 165, 38, 0); } }
+@keyframes tick     { 40% { transform: scale(1.05); } }
+@keyframes pop      { 0% { transform: scale(1); } 40% { transform: scale(1.08); } 100% { transform: scale(1); } }
+
+/* ---------- Header ---------- */
+.header { animation: drop .5s var(--ease) backwards; transition: box-shadow .3s ease; }
+.header.scrolled { box-shadow: 0 6px 18px rgba(0, 0, 0, .3); }   /* class added by animations.js */
+
+.nav-links a:not(.current) {
+  background: linear-gradient(currentColor, currentColor) no-repeat left bottom / 0 2px;
+  transition: background-size .3s var(--ease), color .2s ease, opacity .2s ease;
+}
+.nav-links a:not(.current):hover { background-size: 100% 2px; }
+
+/* The "Vote" button in the menu gently pulses to catch the eye. */
+.vote-btn { animation: ring 2.4s ease-out 1.2s infinite; }
+
+/* ---------- Home page ---------- */
+.hero-logo { animation: pop-in .8s var(--ease) backwards, float 4s ease-in-out .8s infinite; }
+.hero-title    { animation: rise .7s var(--ease) .15s backwards; }
+.hero-text     { animation: rise .7s var(--ease) .30s backwards; }
+.hero-actions  { animation: rise .7s var(--ease) .45s backwards; }
+.countdown-section { animation: fade .8s ease backwards; }
+.time-box { animation: rise .6s var(--ease) backwards; }
+.time-box:nth-child(1) { animation-delay: .10s; }
+.time-box:nth-child(2) { animation-delay: .20s; }
+.time-box:nth-child(3) { animation-delay: .30s; }
+.time-box:nth-child(4) { animation-delay: .40s; }
+.time-box.tick { animation: tick .35s var(--ease); }              /* the seconds box, added by animations.js */
+
+/* ---------- Page titles (Categories, News, About) ---------- */
+.page-hero > * { animation: rise .6s var(--ease) backwards; }
+.page-hero > :nth-child(2) { animation-delay: .10s; }
+.page-hero > :nth-child(3) { animation-delay: .20s; }
+.page-hero > :nth-child(4) { animation-delay: .30s; }
+
+/* ---------- Items that your JavaScript builds (they animate as they are added) ----------
+   Each child rises in one after another. */
+:is(.nominee-grid, .news-grid, .award-groups, .partners-row, .event-list, .stats, .contacts) > * {
+  animation: rise .55s var(--ease) backwards;
+}
+:is(.nominee-grid, .news-grid, .award-groups, .partners-row, .event-list, .stats, .contacts) > :nth-child(1)  { animation-delay: .00s; }
+:is(.nominee-grid, .news-grid, .award-groups, .partners-row, .event-list, .stats, .contacts) > :nth-child(2)  { animation-delay: .06s; }
+:is(.nominee-grid, .news-grid, .award-groups, .partners-row, .event-list, .stats, .contacts) > :nth-child(3)  { animation-delay: .12s; }
+:is(.nominee-grid, .news-grid, .award-groups, .partners-row, .event-list, .stats, .contacts) > :nth-child(4)  { animation-delay: .18s; }
+:is(.nominee-grid, .news-grid, .award-groups, .partners-row, .event-list, .stats, .contacts) > :nth-child(5)  { animation-delay: .24s; }
+:is(.nominee-grid, .news-grid, .award-groups, .partners-row, .event-list, .stats, .contacts) > :nth-child(6)  { animation-delay: .30s; }
+:is(.nominee-grid, .news-grid, .award-groups, .partners-row, .event-list, .stats, .contacts) > :nth-child(7)  { animation-delay: .36s; }
+:is(.nominee-grid, .news-grid, .award-groups, .partners-row, .event-list, .stats, .contacts) > :nth-child(8)  { animation-delay: .42s; }
+:is(.nominee-grid, .news-grid, .award-groups, .partners-row, .event-list, .stats, .contacts) > :nth-child(9)  { animation-delay: .48s; }
+:is(.nominee-grid, .news-grid, .award-groups, .partners-row, .event-list, .stats, .contacts) > :nth-child(10) { animation-delay: .54s; }
+:is(.nominee-grid, .news-grid, .award-groups, .partners-row, .event-list, .stats, .contacts) > :nth-child(n+11) { animation-delay: .60s; }
+
+/* Lift cards slightly when the mouse is over them. */
+:is(.nominee-grid, .news-grid, .award-groups, .partners-row) > *,
+.about-card, .info-card {
+  transition: transform .25s var(--ease), box-shadow .25s ease, border-color .2s ease,
+              background-color .2s ease, color .2s ease, opacity .2s ease;
+}
+:is(.nominee-grid, .news-grid, .award-groups, .partners-row) > *:hover,
+.about-card:hover, .info-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, .25);
+}
+
+/* Pressing an artist: a small pop. (Guesses common names for the "selected" state;
+   tell me the real class name from categories.js and I will match it exactly.) */
+.nominee-grid > :is(.selected, .is-selected, .active, .chosen, [aria-pressed="true"], [aria-checked="true"]) {
+  animation: pop .4s var(--ease);
+}
+
+/* ---------- Voting pop-up ---------- */
+.modal       { animation: fade .25s ease backwards; }
+.modal-panel { animation: pop-in .4s var(--ease) backwards; }
+.vote-bar    { animation: slide-up .35s var(--ease) backwards; }
+
+/* ---------- News page ---------- */
+.calendar-grid > * { animation: fade .35s ease backwards; }       /* month changes fade in */
+
+/* ---------- Admin ---------- */
+.panel      { animation: rise .4s var(--ease) backwards; }         /* each tab fades up when opened */
+.login-card { animation: pop-in .5s var(--ease) backwards; }
+
+/* ---------- Buttons ---------- */
+.btn, .vote-btn, .vote-submit, .cal-btn, .slider-btn, .tab {
+  transition: transform .15s ease, filter .2s ease, background-color .2s ease, color .2s ease,
+              border-color .2s ease, box-shadow .2s ease, opacity .2s ease;
+}
+.btn:hover:not(:disabled), .vote-submit:hover:not(:disabled), .cal-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+.btn:active:not(:disabled), .vote-btn:active, .vote-submit:active:not(:disabled) { transform: scale(.96); }
+
+/* ---------- Scroll reveal ----------
+   animations.js adds .js-reveal to big blocks, then .in-view when you scroll to them. */
+.js-reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s var(--ease); }
+.js-reveal.in-view { opacity: 1; transform: none; }
+
+/* ---------- Respect "reduce motion" ----------
+   People who turn this on in their phone or computer settings get no movement. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0s !important;
+    transition-duration: .01ms !important;
+  }
+  .js-reveal { opacity: 1; transform: none; }
+}
