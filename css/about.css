@@ -5,6 +5,7 @@
   padding: 60px 5% 20px;
 }
 
+
 .page-title {
   font-size: clamp(2.6rem, 8vw, 5rem);
   text-transform: uppercase;
@@ -54,7 +55,11 @@
   gap: 18px;
 }
 
-.card-logo { width: 100%; max-width: 190px; height: auto; }
+.card-logo {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+} 
 
 .eyebrow {
   margin-bottom: 6px;
