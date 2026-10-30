@@ -89,6 +89,99 @@ body::after {
       transparent 100.6%);
 }
 
+/* =================================
+   MEA ANIMATED GOLD BACKGROUND
+================================= */
+
+body {
+  position: relative;
+  isolation: isolate;
+  overflow-x: hidden;
+  background: #030201;
+}
+
+/* Moving golden atmosphere */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -50%;
+  z-index: -1;
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      ellipse at 75% 75%,
+      rgba(190, 135, 30, 0.15),
+      transparent 35%
+    ),
+    radial-gradient(
+      ellipse at 15% 30%,
+      rgba(150, 105, 30, 0.10),
+      transparent 30%
+    );
+
+  animation: goldAtmosphere 12s ease-in-out infinite alternate;
+}
+
+/* Animated golden curve */
+body::after {
+  content: "";
+  position: fixed;
+  width: 120vw;
+  height: 85vh;
+  right: -55vw;
+  bottom: -60vh;
+
+  border: 2px solid rgba(218, 170, 65, 0.8);
+  border-radius: 50%;
+
+  box-shadow:
+    0 0 8px rgba(218, 170, 65, 0.9),
+    0 0 25px rgba(218, 170, 65, 0.6),
+    0 0 65px rgba(218, 170, 65, 0.25);
+
+  transform: rotate(-35deg);
+  animation: goldCurve 10s ease-in-out infinite alternate;
+
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Atmosphere movement */
+@keyframes goldAtmosphere {
+  0% {
+    transform: translate(-3%, -2%) scale(1);
+    opacity: 0.6;
+  }
+
+  100% {
+    transform: translate(3%, 3%) scale(1.15);
+    opacity: 1;
+  }
+}
+
+/* Golden curve movement */
+@keyframes goldCurve {
+  0% {
+    transform: rotate(-38deg) translateX(-2%);
+    opacity: 0.65;
+  }
+
+  100% {
+    transform: rotate(-29deg) translateX(3%);
+    opacity: 1;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  body::before,
+  body::after {
+    animation: none;
+  }
+}
+
+
 /* ---------- Header ---------- */
 
 .header {
