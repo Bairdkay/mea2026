@@ -448,6 +448,23 @@ body::after {
 }
 
 /* MOBILE RESPONSIVENESS */
+@media (max-width: 360px) {
+    .countdown {
+        gap: 4px;
+    }
+
+    .time-box {
+        padding: 10px 1px;
+    }
+
+    .time-box span {
+        font-size: 16px;
+    }
+
+    .time-box small {
+        font-size: 7px;
+    }
+}
 @media (max-width: 480px) {
 
   .countdown-section,
@@ -471,10 +488,10 @@ body::after {
     padding: 12px 2px;
     border-radius: 7px;
   }
-
-  .time-box span {
-    font-size: clamp(17px, 5vw, 23px);
-  }
+.time-box span {
+    font-size: clamp(15px, 5vw, 23px);
+    line-height: 1.2;
+}
 
   .time-box small {
     font-size: 8px;
