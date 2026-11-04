@@ -448,25 +448,45 @@ body::after {
 }
 
 /* MOBILE RESPONSIVENESS */
-
 @media (max-width: 480px) {
 
   .countdown-section,
   .voting-countdown-section {
-    padding: 40px 15px;
+    padding: 30px 12px;
+  }
+
+  .countdown-section h2,
+  .voting-countdown-section h2 {
+    font-size: 22px;
+    margin-bottom: 22px;
   }
 
   .countdown {
-    gap: 7px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    max-width: 100%;
   }
 
   .time-box {
-    padding: 16px 2px;
-    border-radius: 8px;
+    padding: 12px 2px;
+    border-radius: 7px;
+  }
+
+  .time-box span {
+    font-size: clamp(17px, 5vw, 23px);
   }
 
   .time-box small {
-    letter-spacing: 0.5px;
+    font-size: 8px;
+    letter-spacing: 0;
+    margin-top: 5px;
+  }
+
+  .countdown-footer,
+  .voting-message {
+    font-size: 10px;
+    letter-spacing: 1px;
+    margin-top: 18px;
   }
 }
 
