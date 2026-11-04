@@ -1,4 +1,8 @@
-/* ===== Event date & location (under Vote button) ===== */
+/* =================================
+   MEA — EVENT INFO (date & location)
+   Sits under the Vote Now button
+================================= */
+
 .event-info {
   display: inline-flex;
   flex-wrap: nowrap;
@@ -24,9 +28,13 @@
   white-space: nowrap;
 }
 
+/* Icons: works with Font Awesome (<i class="fa-solid ...">) or emoji (.event-icon) */
+.event-item i,
 .event-icon {
-  font-size: 1.5rem;
+  flex-shrink: 0;
+  font-size: 1.4rem;
   line-height: 1;
+  color: #d4af37;
 }
 
 .event-text small {
@@ -52,7 +60,7 @@
   background: rgba(212, 175, 55, 0.35);
 }
 
-/* Shown when the countdown reaches zero (grid is defined in style.css) */
+/* Shown when the countdown reaches zero (the grid itself is in style.css) */
 .countdown.is-live {
   display: block;
   font-weight: 800;
@@ -71,8 +79,9 @@
     gap: 0.4rem;
   }
 
+  .event-item i,
   .event-icon {
-    font-size: 1.1rem;
+    font-size: 1.05rem;
   }
 
   .event-text small {
@@ -90,7 +99,7 @@
   }
 }
 
-/* Very small phones */
+/* ===== Very small phones ===== */
 @media (max-width: 360px) {
   .event-info {
     gap: 0.45rem;
@@ -101,34 +110,12 @@
     gap: 0.3rem;
   }
 
+  .event-item i,
   .event-icon {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
   }
 
   .event-text strong {
     font-size: 0.75rem;
-  }
-}
-
-/* Shown when the countdown reaches zero (grid is defined in style.css) */
-.countdown.is-live {
-  display: block;
-  font-weight: 800;
-  font-size: 1.4rem;
-  color: #d4b36a;
-}
-
-/* ===== Mobile ===== */
-@media (max-width: 560px) {
-  .event-info {
-    flex-direction: column;
-    gap: 0.9rem;
-    border-radius: 20px;
-    padding: 1rem 1.4rem;
-  }
-
-  .event-divider {
-    width: 2.5rem;
-    height: 1px;
   }
 }
