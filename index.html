@@ -6,6 +6,8 @@
   <title>MEA</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/event-info.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body>
 
@@ -20,13 +22,13 @@
         <ul class="nav-links" id="nav-links">
           <li><a href="index.html" class="current" aria-current="page">Home</a></li>
           <li><a href="categories.html">Categories</a></li>
-        <li><a href="news.html">News</a></li>
-         <li><a href="about.html">About</a></li>
+          <li><a href="news.html">News</a></li>
+          <li><a href="about.html">About</a></li>
         </ul>
 
         <a href="categories.html" class="vote-btn">Vote</a>
 
-         <button class="menu-toggle" type="button"
+        <button class="menu-toggle" type="button"
                 aria-label="Toggle navigation"
                 aria-expanded="false"
                 aria-controls="nav-links">
@@ -41,63 +43,37 @@
 
   <main>
     <section class="hero" id="home">
-      <!-- NOMINATION DEADLINE -->
-<section class="countdown-section">
-  <p class="countdown-label">NOMINATIONS CLOSING SOON</p>
-  <h2>Nomination Deadline</h2>
 
-  <div class="countdown" id="nomination-timer">
-    <div class="time-box">
-      <span id="nom-days">00</span>
-      <small>Days</small>
-    </div>
-
-    <div class="time-box">
-      <span id="nom-hours">00</span>
-      <small>Hours</small>
-    </div>
-
-    <div class="time-box">
-      <span id="nom-minutes">00</span>
-      <small>Minutes</small>
-    </div>
-
-    <div class="time-box">
-      <span id="nom-seconds">00</span>
-      <small>Seconds</small>
-    </div>
-  </div>
-</section>
       <!-- MEA COUNTDOWN -->
-<section class="countdown-section">
-  <p class="countdown-label">THE COUNTDOWN IS ON</p>
-  <h2>Until The Big Night</h2>
+      <section class="countdown-section">
+        <p class="countdown-label">THE COUNTDOWN IS ON</p>
+        <h2>Until The Big Night</h2>
 
-  <div class="countdown" id="countdown">
-    <div class="time-box">
-      <span id="days">00</span>
-      <small>Days</small>
-    </div>
+        <div class="countdown" id="countdown" data-target="2026-12-26T18:00:00+02:00">
+          <div class="time-box">
+            <span id="days">00</span>
+            <small>Days</small>
+          </div>
 
-    <div class="time-box">
-      <span id="hours">00</span>
-      <small>Hours</small>
-    </div>
+          <div class="time-box">
+            <span id="hours">00</span>
+            <small>Hours</small>
+          </div>
 
-    <div class="time-box">
-      <span id="minutes">00</span>
-      <small>Minutes</small>
-    </div>
+          <div class="time-box">
+            <span id="minutes">00</span>
+            <small>Minutes</small>
+          </div>
 
-    <div class="time-box">
-      <span id="seconds">00</span>
-      <small>Seconds</small>
-    </div>
-  </div>
+          <div class="time-box">
+            <span id="seconds">00</span>
+            <small>Seconds</small>
+          </div>
+        </div>
 
-  <p class="countdown-footer">THE NIGHT WE CELEBRATE EXCELLENCE.</p>
-</section>
-      
+        <p class="countdown-footer">THE NIGHT WE CELEBRATE EXCELLENCE.</p>
+      </section>
+
       <h1 class="hero-title">
         <img class="hero-logo" src="assets/logo2.png" alt="Mchinji">
         Mchinji Entertainment <span>Awards 2026</span>
@@ -110,26 +86,46 @@
       <div class="hero-actions">
         <a href="categories.html" class="btn btn-outline">Vote Now</a>
       </div>
+
+      <!-- EVENT DATE & LOCATION -->
+      <div class="event-info">
+        <div class="event-item">
+          <i class="fa-solid fa-calendar-days"></i>
+          <div class="event-text">
+            <small>Date</small>
+            <strong>26 December 2026</strong>
+          </div>
+        </div>
+
+        <span class="event-divider" aria-hidden="true"></span>
+
+        <div class="event-item">
+          <i class="fa-solid fa-location-dot"></i>
+          <div class="event-text">
+            <small>Location</small>
+            <strong>Mchinji Hall</strong>
+          </div>
+        </div>
+      </div>
     </section>
+
     <!-- Sponsors Section -->
-<section class="sponsors">
-  
+    <section class="sponsors">
+      <div class="sponsors-container">
+        <div class="sponsor">
+          <img src="assets/sponsor1.png" alt="Sponsor 1">
+        </div>
 
-  <div class="sponsors-container">
-    <div class="sponsor">
-      <img src="assets/sponsor1.png" alt="Sponsor 1">
-    </div>
-
-    <div class="sponsor">
-      <img src="assets/sponsor2.png" alt="Sponsor 2">
-    </div>
-  </div>
-</section>
+        <div class="sponsor">
+          <img src="assets/sponsor2.png" alt="Sponsor 2">
+        </div>
+      </div>
+    </section>
   </main>
- <script src="js/script.js"></script>
+
+  <script src="js/script.js"></script>
   <script src="supabase.config.js"></script>
   <script src="js/categories.js"></script>
-  </script>
   <script src="js/animations.js"></script>
   <script src="js/countdown.js"></script>
 </body>

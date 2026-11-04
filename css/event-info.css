@@ -1,0 +1,113 @@
+/* ===== Event date & location (under Vote button) ===== */
+.event-info {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  margin: 1.75rem auto 0;
+  padding: 0.9rem 1.6rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 200, 80, 0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.event-item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  text-align: left;
+}
+
+.event-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.event-text small {
+  display: block;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.event-text strong {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffc850;
+  letter-spacing: 0.02em;
+}
+
+.event-divider {
+  width: 1px;
+  height: 2.2rem;
+  background: rgba(255, 200, 80, 0.35);
+}
+
+/* ===== Countdown polish ===== */
+.countdown {
+  display: flex;
+  justify-content: center;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.countdown .time-box {
+  min-width: 80px;
+  padding: 0.9rem 0.6rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 200, 80, 0.3);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  text-align: center;
+}
+
+.countdown .time-box span {
+  display: block;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #ffc850;
+  font-variant-numeric: tabular-nums;
+}
+
+.countdown .time-box small {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.countdown.is-live {
+  font-weight: 800;
+  font-size: 1.4rem;
+  color: #ffc850;
+}
+
+/* ===== Mobile ===== */
+@media (max-width: 560px) {
+  .event-info {
+    flex-direction: column;
+    gap: 0.9rem;
+    border-radius: 20px;
+    padding: 1rem 1.4rem;
+  }
+
+  .event-divider {
+    width: 2.5rem;
+    height: 1px;
+  }
+
+  .countdown .time-box {
+    min-width: 66px;
+  }
+
+  .countdown .time-box span {
+    font-size: 1.5rem;
+  }
+}
