@@ -1,4 +1,19 @@
-/* ---------- Fonts ---------- */
+/* =================================
+   MEA — MAIN STYLESHEET
+   1. Fonts
+   2. Base
+   3. Animated gold background
+   4. Header & navigation
+   5. Hero & buttons
+   6. Countdown
+   7. Sponsors
+   8. Shared / footer
+   9. Responsive
+   10. Reduced motion
+================================= */
+
+
+/* ---------- 1. Fonts ---------- */
 
 @font-face {
   font-family: "Neue Montreal";
@@ -16,6 +31,9 @@
   font-display: swap;
 }
 
+
+/* ---------- 2. Base ---------- */
+
 * {
   margin: 0;
   padding: 0;
@@ -23,13 +41,15 @@
 }
 
 body {
+  position: relative;
+  isolation: isolate;
+  overflow-x: hidden;
+  min-height: 100vh;
   font-family: "Neue Montreal", Arial, sans-serif;
   font-weight: 500;
   font-synthesis: none; /* no fake bold: only real font weights are used */
-  min-height: 100vh;
   color: #ffffff;
   background-color: #030201;
-  isolation: isolate;
 }
 
 button {
@@ -47,58 +67,8 @@ h3,
   font-weight: 700;
 }
 
-/* ---------- Background ---------- */
 
-/* Soft bronze haze (fixed while scrolling) */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background-image:
-    radial-gradient(ellipse 14% 60% at 6% 38%, rgba(88, 68, 40, 0.38), transparent 72%),
-    radial-gradient(ellipse 12% 30% at 14% 8%, rgba(60, 48, 30, 0.28), transparent 75%),
-    radial-gradient(ellipse 28% 14% at 92% 8%, rgba(78, 62, 36, 0.34), transparent 75%),
-    radial-gradient(ellipse 34% 14% at 38% 90%, rgba(46, 34, 20, 0.5), transparent 75%),
-    radial-gradient(ellipse at 50% 45%, #000 30%, transparent 85%);
-}
-
-/* Gold arc, bottom right (fixed while scrolling) */
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  -webkit-mask-image: linear-gradient(90deg, transparent 25%, #000 80%);
-          mask-image: linear-gradient(90deg, transparent 25%, #000 80%);
-  background:
-    radial-gradient(circle 73vmax at 45% calc(100% - 71vmax),
-      transparent 0 96.6%,
-      rgba(150, 100, 30, 0.25) 97.6%,
-      rgba(214, 160, 70, 0.75) 98.7%,
-      #fff0c4 99.25%,
-      rgba(214, 160, 70, 0.55) 99.6%,
-      transparent 100%),
-    radial-gradient(circle 73vmax at 45% calc(100% - 71vmax),
-      transparent 0 93%,
-      rgba(120, 80, 20, 0.18) 95.5%,
-      rgba(190, 135, 50, 0.38) 98%,
-      rgba(214, 160, 70, 0.28) 99.3%,
-      transparent 100.6%);
-}
-
-/* =================================
-   MEA ANIMATED GOLD BACKGROUND
-================================= */
-
-body {
-  position: relative;
-  isolation: isolate;
-  overflow-x: hidden;
-  background: #030201;
-}
+/* ---------- 3. Animated gold background ---------- */
 
 /* Moving golden atmosphere */
 body::before {
@@ -107,19 +77,9 @@ body::before {
   inset: -50%;
   z-index: -1;
   pointer-events: none;
-
   background:
-    radial-gradient(
-      ellipse at 75% 75%,
-      rgba(190, 135, 30, 0.15),
-      transparent 35%
-    ),
-    radial-gradient(
-      ellipse at 15% 30%,
-      rgba(150, 105, 30, 0.10),
-      transparent 30%
-    );
-
+    radial-gradient(ellipse at 75% 75%, rgba(190, 135, 30, 0.15), transparent 35%),
+    radial-gradient(ellipse at 15% 30%, rgba(150, 105, 30, 0.10), transparent 30%);
   animation: goldAtmosphere 12s ease-in-out infinite alternate;
 }
 
@@ -127,62 +87,46 @@ body::before {
 body::after {
   content: "";
   position: fixed;
+  z-index: -1;
+  pointer-events: none;
   width: 120vw;
   height: 85vh;
   right: -55vw;
   bottom: -60vh;
-
   border: 2px solid rgba(218, 170, 65, 0.8);
   border-radius: 50%;
-
   box-shadow:
     0 0 8px rgba(218, 170, 65, 0.9),
     0 0 25px rgba(218, 170, 65, 0.6),
     0 0 65px rgba(218, 170, 65, 0.25);
-
   transform: rotate(-35deg);
   animation: goldCurve 10s ease-in-out infinite alternate;
-
-  z-index: -1;
-  pointer-events: none;
 }
 
-/* Atmosphere movement */
 @keyframes goldAtmosphere {
   0% {
     transform: translate(-3%, -2%) scale(1);
     opacity: 0.6;
   }
-
   100% {
     transform: translate(3%, 3%) scale(1.15);
     opacity: 1;
   }
 }
 
-/* Golden curve movement */
 @keyframes goldCurve {
   0% {
     transform: rotate(-38deg) translateX(-2%);
     opacity: 0.65;
   }
-
   100% {
     transform: rotate(-29deg) translateX(3%);
     opacity: 1;
   }
 }
 
-/* Accessibility */
-@media (prefers-reduced-motion: reduce) {
-  body::before,
-  body::after {
-    animation: none;
-  }
-}
 
-
-/* ---------- Header ---------- */
+/* ---------- 4. Header & navigation ---------- */
 
 .header {
   position: relative;
@@ -198,10 +142,10 @@ body::after {
 }
 
 .logo img {
+  display: block;
   width: 55px;
   height: 55px;
   object-fit: contain;
-  display: block;
 }
 
 .navbar {
@@ -224,7 +168,8 @@ body::after {
   transition: color 0.3s ease;
 }
 
-.nav-links a:hover {
+.nav-links a:hover,
+.nav-links a.current {
   color: #d4af37;
 }
 
@@ -250,7 +195,8 @@ body::after {
   cursor: pointer;
 }
 
-/* ---------- Hero ---------- */
+
+/* ---------- 5. Hero & buttons ---------- */
 
 .hero {
   min-height: calc(100vh - 85px);
@@ -271,10 +217,9 @@ body::after {
 }
 
 .hero-title {
+  max-width: 900px;
   font-size: clamp(2.2rem, 6vw, 4.5rem);
   line-height: 1.1;
-  font-weight: 700;
-  max-width: 900px;
 }
 
 .hero-logo {
@@ -287,11 +232,11 @@ body::after {
 
 .hero-title span {
   display: block;
+  color: #d4af37; /* fallback */
   background: linear-gradient(90deg, #b8862e, #fff0c4, #d4af37);
   -webkit-background-clip: text;
           background-clip: text;
   -webkit-text-fill-color: transparent;
-  color: #d4af37; /* fallback */
 }
 
 .hero-text {
@@ -347,9 +292,8 @@ body::after {
   color: #111827;
 }
 
-/* =================================
-   MEA COUNTDOWN DESIGN
-================================= */
+
+/* ---------- 6. Countdown ---------- */
 
 .countdown-section,
 .voting-countdown-section {
@@ -376,8 +320,7 @@ body::after {
   text-transform: uppercase;
 }
 
-/* FOUR BOXES IN ONE ROW */
-
+/* Four boxes, always in one row */
 .countdown {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -387,8 +330,6 @@ body::after {
   margin: 0 auto;
 }
 
-/* INDIVIDUAL TIME BOX */
-
 .time-box {
   min-width: 0;
   padding: 20px 5px;
@@ -396,8 +337,7 @@ body::after {
   border-radius: 9px;
   background: rgba(255, 255, 255, 0.015);
   backdrop-filter: blur(10px);
-  transition: border-color 0.3s ease,
-              transform 0.3s ease;
+  transition: border-color 0.3s ease, transform 0.3s ease;
 }
 
 .time-box:hover {
@@ -415,25 +355,21 @@ body::after {
 
 .time-box small {
   display: block;
+  margin-top: 8px;
   color: #aaa;
   font-size: clamp(8px, 2vw, 11px);
-  margin-top: 8px;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
-/* COUNTDOWN FOOTER */
-
 .countdown-footer,
 .voting-message {
+  margin-top: 25px;
   color: #888;
   font-size: 12px;
   letter-spacing: 2px;
   line-height: 1.8;
-  margin-top: 25px;
 }
-
-/* VOTING STATUS */
 
 .voting-message.is-open {
   color: #d4b36a;
@@ -447,86 +383,20 @@ body::after {
   font-weight: bold;
 }
 
-/* MOBILE RESPONSIVENESS */
-@media (max-width: 360px) {
-    .countdown {
-        gap: 4px;
-    }
 
-    .time-box {
-        padding: 10px 1px;
-    }
-
-    .time-box span {
-        font-size: 16px;
-    }
-
-    .time-box small {
-        font-size: 7px;
-    }
-}
-@media (max-width: 480px) {
-
-  .countdown-section,
-  .voting-countdown-section {
-    padding: 30px 12px;
-  }
-
-  .countdown-section h2,
-  .voting-countdown-section h2 {
-    font-size: 22px;
-    margin-bottom: 22px;
-  }
-
-  .countdown {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 6px;
-    max-width: 100%;
-  }
-
-  .time-box {
-    padding: 12px 2px;
-    border-radius: 7px;
-  }
-.time-box span {
-    font-size: clamp(15px, 5vw, 23px);
-    line-height: 1.2;
-}
-
-  .time-box small {
-    font-size: 8px;
-    letter-spacing: 0;
-    margin-top: 5px;
-  }
-
-  .countdown-footer,
-  .voting-message {
-    font-size: 10px;
-    letter-spacing: 1px;
-    margin-top: 18px;
-  }
-}
-
-/* ACCESSIBILITY */
-
-@media (prefers-reduced-motion: reduce) {
-  .time-box {
-    transition: none;
-  }
-}
+/* ---------- 7. Sponsors ---------- */
 
 .sponsors {
   padding: 25px 20px 40px;
   text-align: center;
- 
 }
 
 .sponsors-title {
+  margin-bottom: 20px;
   color: #777;
   font-size: 11px;
   letter-spacing: 2px;
   text-transform: uppercase;
-  margin-bottom: 20px;
 }
 
 .sponsors-container {
@@ -549,46 +419,15 @@ body::after {
   max-height: 100%;
   object-fit: contain;
   opacity: 0.7;
-  transition: 0.3s ease;
+  transition: opacity 0.3s ease;
 }
 
 .sponsor img:hover {
   opacity: 1;
 }
 
-@media (max-width: 600px) {
-  .sponsor {
-    width: 75px;
-    height: 35px;
-  }
 
-  .sponsors-container {
-    gap: 30px;
-  }
-}
-
-@media (max-width: 480px) {
-  .hero {
-    padding: 40px 6%;
-  }
-
-  .hero-actions {
-    flex-direction: column;
-    width: 100%;
-    max-width: 320px;
-  }
-
-  .btn {
-    width: 100%;
-    text-align: center;
-  }
-}
-
-/* ---------- Shared ---------- */
-
-.nav-links a.current {
-  color: #d4af37;
-}
+/* ---------- 8. Shared / footer ---------- */
 
 .footer {
   padding: 24px 8%;
@@ -598,8 +437,10 @@ body::after {
   border-top: 1px solid rgba(212, 175, 55, 0.15);
 }
 
-/* ---------- Mobile ---------- */
 
+/* ---------- 9. Responsive ---------- */
+
+/* Tablet / mobile navigation */
 @media (max-width: 768px) {
   .header-container {
     padding: 12px 5%;
@@ -636,30 +477,112 @@ body::after {
     flex-direction: column;
     align-items: flex-start;
     gap: 20px;
-
     position: absolute;
     top: 100%;
     right: 5%;
-
-    background-color: #111827;
     padding: 25px;
     border-radius: 10px;
+    background-color: #111827;
+  }
+}
+
+/* Small phones */
+@media (max-width: 600px) {
+  .sponsors-container {
+    gap: 30px;
   }
 
-  /* Gold arc: bigger and flatter so it shows in portrait */
+  .sponsor {
+    width: 75px;
+    height: 35px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    padding: 40px 6%;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .countdown-section,
+  .voting-countdown-section {
+    padding: 30px 12px;
+  }
+
+  .countdown-section h2,
+  .voting-countdown-section h2 {
+    font-size: 22px;
+    margin-bottom: 22px;
+  }
+
+  .countdown {
+    gap: 6px;
+    max-width: 100%;
+  }
+
+  .time-box {
+    padding: 12px 2px;
+    border-radius: 7px;
+  }
+
+  .time-box span {
+    font-size: clamp(15px, 5vw, 23px);
+    line-height: 1.2;
+  }
+
+  .time-box small {
+    margin-top: 5px;
+    font-size: 8px;
+    letter-spacing: 0;
+  }
+
+  .countdown-footer,
+  .voting-message {
+    margin-top: 18px;
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+}
+
+/* Very small phones (must come after the 480px block to take effect) */
+@media (max-width: 360px) {
+  .countdown {
+    gap: 4px;
+  }
+
+  .time-box {
+    padding: 10px 1px;
+  }
+
+  .time-box span {
+    font-size: 16px;
+  }
+
+  .time-box small {
+    font-size: 7px;
+  }
+}
+
+
+/* ---------- 10. Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  body::before,
   body::after {
-    background:
-      radial-gradient(circle 120vw at 30% calc(100% - 118vw),
-        transparent 0 97.4%,
-        rgba(150, 100, 30, 0.25) 98.1%,
-        rgba(214, 160, 70, 0.75) 99%,
-        #fff0c4 99.4%,
-        rgba(214, 160, 70, 0.55) 99.7%,
-        transparent 100%),
-      radial-gradient(circle 120vw at 30% calc(100% - 118vw),
-        transparent 0 95%,
-        rgba(190, 135, 50, 0.35) 98.5%,
-        rgba(214, 160, 70, 0.25) 99.5%,
-        transparent 101%);
+    animation: none;
+  }
+
+  .time-box {
+    transition: none;
   }
 }
