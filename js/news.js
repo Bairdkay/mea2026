@@ -79,10 +79,24 @@
   ];
   var SLIDE_SECONDS = 4;
 
-  /* ---------- 5. PARTNERS ---------- */
+  /* ---------- 5. PARTNERS ----------
+     Click a partner on the page to open its details popup.
+     description: text shown in the popup (leave "" if you have none yet)
+     url:         website link shown as a "Visit website" button
+  */
   var PARTNERS = [
-    { name: "Zikomo Social Net", logo: "assets/partners/zsn.png", url: "" },
-    { name: "DynExa", logo: "assets/partners/dynexa.png", url: "" }
+    {
+      name: "Zikomo Social Net",
+      logo: "assets/partners/zsn.png",
+      url: "",
+      description: "Zikomo Social Net is the founder, owner and main organiser of the Mchinji Entertainment Awards."
+    },
+    {
+      name: "DynExa",
+      logo: "assets/partners/dynexa.png",
+      url: "",
+      description: ""
+    }
   ];
 
   /* =========================================================
@@ -349,24 +363,137 @@
   }
 
   /* ---------- Partners ---------- */
+
+  // Only allow normal web links in the "Visit website" button
+  function safeUrl(url) {
+    return /^https?:\/\//i.test(url || "") ? url : "";
+  }
+
+  var partnerPopup = null;
+
+  // Builds the popup once, the first time a partner is clicked
+  function buildPartnerPopup() {
+    var overlay = el("div", "partner-modal");
+    overlay.hidden = true;
+
+    var dialog = el("div", "partner-dialog");
+    dialog.setAttribute("role", "dialog");
+    dialog.setAttribute("aria-modal", "true");
+    dialog.setAttribute("aria-labelledby", "partner-dialog-title");
+
+    var close = el("button", "partner-close", "\u00D7");
+    close.type = "button";
+    close.setAttribute("aria-label", "Close partner details");
+
+    var logo = el("img", "partner-dialog-logo");
+    logo.alt = "";
+
+    var title = el("h3", "partner-dialog-title");
+    title.id = "partner-dialog-title";
+
+    var text = el("p", "partner-dialog-text");
+
+    var visit = el("a", "btn btn-outline partner-visit", "Visit website");
+    visit.target = "_blank";
+    visit.rel = "noopener";
+    visit.hidden = true;
+
+    dialog.appendChild(close);
+    dialog.appendChild(logo);
+    dialog.appendChild(title);
+    dialog.appendChild(text);
+    dialog.appendChild(visit);
+    overlay.appendChild(dialog);
+    document.body.appendChild(overlay);
+
+    var opener = null;
+
+    function hide() {
+      overlay.hidden = true;
+      document.body.classList.remove("modal-open");
+      if (opener && opener.focus) opener.focus();
+    }
+
+    close.addEventListener("click", hide);
+    overlay.addEventListener("click", function (e) {
+      if (e.target === overlay) hide();
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (overlay.hidden) return;
+      if (e.key === "Escape") {
+        hide();
+        return;
+      }
+      if (e.key === "Tab") {
+        var items = visit.hidden ? [close] : [close, visit];
+        var first = items[0];
+        var last = items[items.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    });
+
+    return {
+      show: function (partner, trigger) {
+        opener = trigger;
+
+        title.textContent = partner.name;
+        text.textContent = partner.description ||
+          "More details about this partner will be added soon.";
+
+        logo.classList.remove("loaded");
+        logo.removeAttribute("src");
+        if (partner.logo) {
+          logo.alt = partner.name;
+          logo.onload = function () { logo.classList.add("loaded"); };
+          logo.onerror = function () { logo.classList.remove("loaded"); };
+          logo.src = partner.logo;
+        }
+
+        var link = safeUrl(partner.url);
+        if (link) {
+          visit.href = link;
+          visit.hidden = false;
+        } else {
+          visit.removeAttribute("href");
+          visit.hidden = true;
+        }
+
+        overlay.hidden = false;
+        document.body.classList.add("modal-open");
+        close.focus();
+      }
+    };
+  }
+
+  function openPartner(partner, trigger) {
+    if (!partnerPopup) partnerPopup = buildPartnerPopup();
+    partnerPopup.show(partner, trigger);
+  }
+
   function renderPartners() {
     var row = document.getElementById("partners-row");
     if (!row) return;
 
     PARTNERS.forEach(function (p) {
-      var tile = p.url ? el("a", "partner") : el("div", "partner");
-      if (p.url) {
-        tile.href = p.url;
-        tile.target = "_blank";
-        tile.rel = "noopener";
-      }
+      var tile = el("button", "partner");
+      tile.type = "button";
+      tile.setAttribute("aria-haspopup", "dialog");
+      tile.setAttribute("aria-label", "View details about " + p.name);
+      tile.addEventListener("click", function () { openPartner(p, tile); });
 
       var label = el("span", "partner-name", p.name);
       tile.appendChild(label);
 
       if (p.logo) {
         var img = el("img", "partner-logo");
-        img.alt = p.name;
+        img.alt = "";
         img.addEventListener("load", function () {
           img.classList.add("loaded");
           label.hidden = true;
@@ -417,7 +544,12 @@
       });
       SLIDES = r[2].map(function (x) { return { src: x.image_url, caption: x.caption || "" }; });
       PARTNERS = r[3].map(function (p) {
-        return { name: p.name, logo: p.logo_url || "", url: p.website_url || "" };
+        return {
+          name: p.name,
+          logo: p.logo_url || "",
+          url: p.website_url || "",
+          description: p.description || ""
+        };
       });
       var v = {};
       r[4].forEach(function (row) { v[row.key] = row.value; });
