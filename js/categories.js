@@ -361,60 +361,91 @@
   var pending = null;     // { category, artist } waiting for the voter to confirm
   var voterPhone = "";    // the number being used right now
 
-  var fieldStyle = "width:100%;box-sizing:border-box;padding:12px;margin:6px 0;border-radius:10px;" +
-    "border:1px solid #c9c2b0;font:inherit;font-size:16px;";
+  var VOTER_CSS =
+    ".voter-panel [hidden]{display:none !important}" +
+    ".voter-panel{width:100%;box-sizing:border-box;padding:20px 18px;margin:0 0 14px;border-radius:18px;" +
+    "background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.02));" +
+    "border:1px solid rgba(212,168,75,.3);box-shadow:0 18px 40px rgba(0,0,0,.35);color:inherit;text-align:center;" +
+    "animation:voterIn .35s ease both}" +
+    "@keyframes voterIn{from{opacity:0;transform:translateY(10px)}}" +
+    ".voter-badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;" +
+    "color:var(--gold,#d4a84b);background:rgba(212,168,75,.12);padding:5px 10px;border-radius:999px;margin-bottom:10px}" +
+    ".voter-title{margin:0 0 6px;font-size:21px;font-weight:700;line-height:1.2}" +
+    ".voter-msg{margin:0 auto 14px;max-width:320px;font-size:14px;line-height:1.5;opacity:.8}" +
+    ".voter-input{display:block;width:100%;box-sizing:border-box;margin:8px 0;padding:15px 16px;border-radius:14px;" +
+    "border:1.5px solid rgba(255,255,255,.14);background:rgba(0,0,0,.35);color:inherit;font:inherit;font-size:17px;" +
+    "text-align:center;outline:none;transition:border-color .2s,box-shadow .2s}" +
+    ".voter-input::placeholder{color:rgba(255,255,255,.35);letter-spacing:.2em}" +
+    ".voter-input:focus{border-color:var(--gold,#d4a84b);box-shadow:0 0 0 4px rgba(212,168,75,.18)}" +
+    ".voter-input.otp{font-size:26px;letter-spacing:.45em;font-weight:700}" +
+    ".voter-input.pin{font-size:28px;letter-spacing:.6em;font-weight:700}" +
+    ".voter-error{min-height:1.2em;margin:10px 0 0;font-size:14px;color:#ff8a80}" +
+    ".voter-go{display:block;width:100%;margin-top:6px;padding:15px;border:0;border-radius:14px;cursor:pointer;" +
+    "background:linear-gradient(135deg,#f3d27a,#d4a84b);color:#1a1205;font:inherit;font-size:16px;font-weight:700;" +
+    "box-shadow:0 10px 24px rgba(212,168,75,.35);transition:transform .15s ease,box-shadow .2s ease,opacity .2s}" +
+    ".voter-go:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 14px 28px rgba(212,168,75,.45)}" +
+    ".voter-go:active:not(:disabled){transform:scale(.98)}" +
+    ".voter-go:disabled{opacity:.6;cursor:default}" +
+    ".voter-links{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:14px}" +
+    ".voter-link{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:inherit;" +
+    "padding:7px 12px;border-radius:999px;font:inherit;font-size:13px;cursor:pointer;transition:background .2s}" +
+    ".voter-link:hover{background:rgba(255,255,255,.14)}" +
+    "@media (prefers-reduced-motion:reduce){.voter-panel{animation:none}}";
 
-  function makeInput(type, placeholder, maxLen) {
-    var input = el("input");
+  function injectVoterCss() {
+    if (document.getElementById("voter-css")) return;
+    var style = el("style");
+    style.id = "voter-css";
+    style.textContent = VOTER_CSS;
+    document.head.appendChild(style);
+  }
+
+  injectVoterCss();
+
+  function makeInput(type, placeholder, maxLen, extraClass) {
+    var input = el("input", "voter-input" + (extraClass ? " " + extraClass : ""));
     input.type = type;
     input.placeholder = placeholder;
     if (maxLen) input.maxLength = maxLen;
-    input.setAttribute("style", fieldStyle);
     input.autocomplete = type === "password" ? "off" : "on";
     return input;
   }
 
   var voterPanel = el("div", "voter-panel");
   voterPanel.hidden = true;
-  voterPanel.setAttribute("style", "width:100%;text-align:left;");
 
+  var voterBadge = el("span", "voter-badge");
+  var voterTitle = el("h3", "voter-title");
   var voterMsg = el("p", "voter-msg");
-  voterMsg.setAttribute("style", "margin:0 0 4px;");
 
-  var phoneInput = makeInput("tel", "Phone number, e.g. 0999 123 456", 20);
-  var codeInput = makeInput("text", "6-digit code from SMS", 6);
+  var phoneInput = makeInput("tel", "0999 123 456", 20);
+  var codeInput = makeInput("text", "······", 6, "otp");
   codeInput.inputMode = "numeric";
   codeInput.autocomplete = "one-time-code";
-  var newPinInput = makeInput("password", "Choose a 4-digit PIN", 4);
+  var newPinInput = makeInput("password", "····", 4, "pin");
   newPinInput.inputMode = "numeric";
-  var pinInput = makeInput("password", "Your 4-digit PIN", 4);
+  var pinInput = makeInput("password", "····", 4, "pin");
   pinInput.inputMode = "numeric";
 
   var voterError = el("p", "voter-error");
-  voterError.setAttribute("style", "margin:6px 0 0;color:#b3261e;font-size:14px;min-height:1em;");
 
-  var voterGo = el("button", "vote-submit");
+  var voterGo = el("button", "voter-go");
   voterGo.type = "button";
-  voterGo.setAttribute("style", "width:100%;margin-top:8px;");
 
-  var linkStyle = "background:none;border:0;color:inherit;text-decoration:underline;padding:6px 4px;" +
-    "font:inherit;font-size:14px;cursor:pointer;";
   var voterAlt = el("button", "voter-link", "Forgot PIN?");
   voterAlt.type = "button";
-  voterAlt.setAttribute("style", linkStyle);
   var voterSwitch = el("button", "voter-link", "Use another number");
   voterSwitch.type = "button";
-  voterSwitch.setAttribute("style", linkStyle);
   var voterBack = el("button", "voter-link", "Cancel");
   voterBack.type = "button";
-  voterBack.setAttribute("style", linkStyle);
 
-  var linkRow = el("div");
-  linkRow.setAttribute("style", "display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;margin-top:4px;");
+  var linkRow = el("div", "voter-links");
   linkRow.appendChild(voterAlt);
   linkRow.appendChild(voterSwitch);
   linkRow.appendChild(voterBack);
 
+  voterPanel.appendChild(voterBadge);
+  voterPanel.appendChild(voterTitle);
   voterPanel.appendChild(voterMsg);
   voterPanel.appendChild(phoneInput);
   voterPanel.appendChild(codeInput);
@@ -464,6 +495,13 @@
     pinInput.value = "";
     newPinInput.value = "";
     codeInput.value = "";
+    var heads = {
+      phone: ["Step 1 of 2", "Verify your number"],
+      code: ["Step 2 of 2", "Enter your code"],
+      pin: ["Quick vote", "Enter your PIN"]
+    }[step];
+    voterBadge.textContent = heads[0];
+    voterTitle.textContent = heads[1];
     voterMsg.textContent = message || defaultMessage(step);
     setBusy(false);
     updateBar();
