@@ -2,12 +2,17 @@
    Mchinji Entertainment Awards 2026 - Voting page
 
    Two modes, chosen automatically:
-   - LIVE mode: when js/supabase-config.js has your real Supabase
+   - LIVE mode: when supabase.config.js has your real Supabase
      details. Categories and artists come from the database and
-     votes are checked on the server (one device = one vote per
-     category).
+     votes are checked on the server.
    - DEMO mode: when the config still has placeholders. Uses the
      lists below and saves votes only in the visitor's browser.
+
+   VOTING (LIVE mode)
+   Browsing is free. When a visitor presses Submit:
+   - New voter: enter phone number -> enter the SMS code -> choose a 4-digit PIN -> vote.
+   - Returning voter: enter phone number and PIN -> vote. No SMS needed.
+   - Forgot PIN: get a new SMS code and choose a new PIN.
 
    DEMO MODE - HOW TO ADD ARTISTS
      "artist-of-the-year-male": [
@@ -27,6 +32,7 @@
   var PLACEHOLDER_COUNT = 4;
   var LOCAL_VOTES_KEY = "mea_votes_2026";
   var DEVICE_KEY = "mea_device_id";
+  var VOTER_PHONE_KEY = "mea_voter_phone";
 
   /* ---------- DEMO data ---------- */
   var GROUPS = [
@@ -120,6 +126,14 @@
     return node;
   }
 
+  // "0999 123 456" or "+265 999 123 456" -> "265999123456". Returns "" if not a valid Malawi number.
+  function cleanPhone(input) {
+    var d = String(input || "").replace(/\D/g, "");
+    if (d.indexOf("265") === 0) d = d.slice(3);
+    if (d.charAt(0) === "0") d = d.slice(1);
+    return d.length === 9 ? "265" + d : "";
+  }
+
   /* ---------- Device identity (for one-device-one-vote) ---------- */
   function uuid() {
     if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
@@ -196,6 +210,33 @@
     });
   }
 
+  // Phone sign-in calls (Supabase Auth). These send and check the SMS code.
+  function authPost(path, payload) {
+    return fetch(CFG.SUPABASE_URL + "/auth/v1/" + path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", apikey: CFG.SUPABASE_ANON_KEY },
+      body: JSON.stringify(payload)
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (j) {
+        return { ok: r.ok, status: r.status, body: j };
+      });
+    });
+  }
+
+  function requestCode(phone) {
+    return authPost("otp", { phone: "+" + phone }).then(function (res) {
+      if (!res.ok) throw new Error(res.status === 429 ? "rate" : "send");
+    });
+  }
+
+  // Returns the login token if the code is right. The token is only used once, to set the PIN.
+  function checkCode(phone, code) {
+    return authPost("verify", { phone: "+" + phone, token: code, type: "sms" }).then(function (res) {
+      if (!res.ok || !res.body || !res.body.access_token) throw new Error("code");
+      return res.body.access_token;
+    });
+  }
+
   /* ---------- State ---------- */
   var groups = [];      // [{ name, awards: [{ id, title, artists: [{id,name,photo}] }] }]
   var votes = {};       // { categoryId: artistId }
@@ -212,6 +253,20 @@
   function saveLocalVotes(v) {
     memoryVotes = v;
     try { localStorage.setItem(LOCAL_VOTES_KEY, JSON.stringify(v)); } catch (e) { /* ignore */ }
+  }
+
+  function loadStoredPhone() {
+    try { return localStorage.getItem(VOTER_PHONE_KEY) || ""; } catch (e) { return ""; }
+  }
+  var storedPhone = loadStoredPhone();   // remembered so returning voters only type their PIN
+
+  function rememberPhone(phone) {
+    storedPhone = phone;
+    try { localStorage.setItem(VOTER_PHONE_KEY, phone); } catch (e) { /* ignore */ }
+  }
+  function forgetPhone() {
+    storedPhone = "";
+    try { localStorage.removeItem(VOTER_PHONE_KEY); } catch (e) { /* ignore */ }
   }
 
   function loadDemo() {
@@ -301,6 +356,243 @@
 
   var HINT_DEFAULT = "Tap your favourite artist, then press Submit. Your vote is final.";
 
+  /* ---------- Voter panel (phone, code and PIN) ---------- */
+  var voterStep = "";     // "", "phone", "code" or "pin"
+  var pending = null;     // { category, artist } waiting for the voter to confirm
+  var voterPhone = "";    // the number being used right now
+
+  var fieldStyle = "width:100%;box-sizing:border-box;padding:12px;margin:6px 0;border-radius:10px;" +
+    "border:1px solid #c9c2b0;font:inherit;font-size:16px;";
+
+  function makeInput(type, placeholder, maxLen) {
+    var input = el("input");
+    input.type = type;
+    input.placeholder = placeholder;
+    if (maxLen) input.maxLength = maxLen;
+    input.setAttribute("style", fieldStyle);
+    input.autocomplete = type === "password" ? "off" : "on";
+    return input;
+  }
+
+  var voterPanel = el("div", "voter-panel");
+  voterPanel.hidden = true;
+  voterPanel.setAttribute("style", "width:100%;text-align:left;");
+
+  var voterMsg = el("p", "voter-msg");
+  voterMsg.setAttribute("style", "margin:0 0 4px;");
+
+  var phoneInput = makeInput("tel", "Phone number, e.g. 0999 123 456", 20);
+  var codeInput = makeInput("text", "6-digit code from SMS", 6);
+  codeInput.inputMode = "numeric";
+  codeInput.autocomplete = "one-time-code";
+  var newPinInput = makeInput("password", "Choose a 4-digit PIN", 4);
+  newPinInput.inputMode = "numeric";
+  var pinInput = makeInput("password", "Your 4-digit PIN", 4);
+  pinInput.inputMode = "numeric";
+
+  var voterError = el("p", "voter-error");
+  voterError.setAttribute("style", "margin:6px 0 0;color:#b3261e;font-size:14px;min-height:1em;");
+
+  var voterGo = el("button", "vote-submit");
+  voterGo.type = "button";
+  voterGo.setAttribute("style", "width:100%;margin-top:8px;");
+
+  var linkStyle = "background:none;border:0;color:inherit;text-decoration:underline;padding:6px 4px;" +
+    "font:inherit;font-size:14px;cursor:pointer;";
+  var voterAlt = el("button", "voter-link", "Forgot PIN?");
+  voterAlt.type = "button";
+  voterAlt.setAttribute("style", linkStyle);
+  var voterSwitch = el("button", "voter-link", "Use another number");
+  voterSwitch.type = "button";
+  voterSwitch.setAttribute("style", linkStyle);
+  var voterBack = el("button", "voter-link", "Cancel");
+  voterBack.type = "button";
+  voterBack.setAttribute("style", linkStyle);
+
+  var linkRow = el("div");
+  linkRow.setAttribute("style", "display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;margin-top:4px;");
+  linkRow.appendChild(voterAlt);
+  linkRow.appendChild(voterSwitch);
+  linkRow.appendChild(voterBack);
+
+  voterPanel.appendChild(voterMsg);
+  voterPanel.appendChild(phoneInput);
+  voterPanel.appendChild(codeInput);
+  voterPanel.appendChild(newPinInput);
+  voterPanel.appendChild(pinInput);
+  voterPanel.appendChild(voterError);
+  voterPanel.appendChild(voterGo);
+  voterPanel.appendChild(linkRow);
+  voteBar.insertBefore(voterPanel, voteChoice);
+
+  function defaultButtonLabel(step) {
+    if (step === "phone") return "Send code";
+    if (step === "code") return "Confirm and vote";
+    return "Vote";
+  }
+
+  function setBusy(on, label) {
+    busy = on;
+    voterGo.disabled = on;
+    voterGo.textContent = on ? (label || "Please wait...") : defaultButtonLabel(voterStep);
+  }
+
+  function voterFail(message) {
+    setBusy(false);
+    voterError.textContent = message;
+  }
+
+  function defaultMessage(step) {
+    if (step === "phone") {
+      return "Enter your phone number. We will send you a code to confirm it is you. You only do this once.";
+    }
+    if (step === "code") {
+      return "Enter the code we sent to +" + voterPhone + " and choose a 4-digit PIN. You will use this PIN for future votes.";
+    }
+    return "Enter your 4-digit PIN to vote.";
+  }
+
+  function showVoterStep(step, message) {
+    voterStep = step;
+    voterError.textContent = "";
+    phoneInput.hidden = step !== "phone";
+    codeInput.hidden = step !== "code";
+    newPinInput.hidden = step !== "code";
+    pinInput.hidden = step !== "pin";
+    voterAlt.hidden = step !== "pin";
+    voterSwitch.hidden = step !== "pin";
+    pinInput.value = "";
+    newPinInput.value = "";
+    codeInput.value = "";
+    voterMsg.textContent = message || defaultMessage(step);
+    setBusy(false);
+    updateBar();
+  }
+
+  function cancelVoterStep() {
+    voterStep = "";
+    pending = null;
+    voterError.textContent = "";
+    updateBar();
+  }
+
+  // Called when a visitor presses Submit in LIVE mode.
+  function beginVote(category, artist) {
+    pending = { category: category, artist: artist };
+    if (storedPhone) {
+      voterPhone = storedPhone;
+      showVoterStep("pin", "Enter your PIN to vote for " + artist.name + ".");
+    } else {
+      voterPhone = "";
+      showVoterStep("phone", "Enter your phone number to vote for " + artist.name + ". We will send you a code.");
+    }
+  }
+
+  function sendCodeStep() {
+    var phone = cleanPhone(phoneInput.value);
+    if (!phone) return voterFail("Enter a valid Malawi number, e.g. 0999 123 456.");
+    setBusy(true, "Sending code...");
+    requestCode(phone).then(function () {
+      voterPhone = phone;
+      showVoterStep("code", "We sent a code to +" + phone + ". Enter it and choose your 4-digit PIN.");
+    }).catch(function (e) {
+      voterFail(e.message === "rate"
+        ? "Please wait a few minutes before asking for another code."
+        : "We could not send the code. Please try again.");
+    });
+  }
+
+  function confirmCodeStep() {
+    var code = codeInput.value.trim();
+    var pin = newPinInput.value.trim();
+    var job = pending;
+    if (!job) return cancelVoterStep();
+    if (!/^\d{6}$/.test(code)) return voterFail("Enter the 6-digit code from the SMS.");
+    if (!/^\d{4}$/.test(pin)) return voterFail("Your PIN must be 4 digits.");
+
+    setBusy(true, "Checking...");
+    checkCode(voterPhone, code)
+      .then(function (token) {
+        return callVote({ action: "set_pin", access_token: token, pin: pin });
+      })
+      .then(function (res) {
+        if (!(res.body && res.body.ok)) {
+          throw new Error((res.body && res.body.error) || "server_error");
+        }
+        rememberPhone(voterPhone);
+        setBusy(true, "Voting...");
+        return castVote(job, voterPhone, pin).then(function (result) {
+          finishVote(job, result, voterPhone);
+        });
+      })
+      .catch(function (e) {
+        if (e.message === "code") return voterFail("That code is wrong or has expired. Check it or ask for a new one.");
+        voterFail("We could not save your PIN. Please try again.");
+      });
+  }
+
+  function votePinStep() {
+    var pin = pinInput.value.trim();
+    var job = pending;
+    if (!job) return cancelVoterStep();
+    if (!/^\d{4}$/.test(pin)) return voterFail("Enter your 4-digit PIN.");
+
+    setBusy(true, "Voting...");
+    castVote(job, voterPhone, pin).then(function (result) {
+      finishVote(job, result, voterPhone);
+    });
+  }
+
+  voterGo.addEventListener("click", function () {
+    if (busy) return;
+    if (voterStep === "phone") return sendCodeStep();
+    if (voterStep === "code") return confirmCodeStep();
+    if (voterStep === "pin") return votePinStep();
+  });
+
+  // "Forgot PIN?": send a new code to the saved number, then choose a new PIN.
+  voterAlt.addEventListener("click", function () {
+    if (busy) return;
+    setBusy(true, "Sending code...");
+    requestCode(voterPhone).then(function () {
+      showVoterStep("code", "We sent a new code to +" + voterPhone + ". Enter it and choose a new PIN.");
+    }).catch(function (e) {
+      voterFail(e.message === "rate"
+        ? "Please wait a few minutes before asking for another code."
+        : "We could not send the code. Please try again.");
+    });
+  });
+
+  voterSwitch.addEventListener("click", function () {
+    if (busy) return;
+    forgetPhone();
+    voterPhone = "";
+    showVoterStep("phone", "Enter the phone number you want to vote with. We will send you a code.");
+  });
+
+  voterBack.addEventListener("click", function () {
+    if (busy) return;
+    cancelVoterStep();
+  });
+
+  function castVote(job, phone, pin) {
+    return callVote({
+      action: "vote",
+      category_id: job.category.id,
+      artist_id: job.artist.id,
+      device_id: getDeviceId(),
+      fingerprint: fingerprint(),
+      phone: phone,
+      pin: pin
+    }).then(function (res) {
+      return res.body && res.body.ok
+        ? { ok: true }
+        : { ok: false, error: (res.body && res.body.error) || "server_error" };
+    }).catch(function () {
+      return { ok: false, error: "network" };
+    });
+  }
+
   /* ---------- Category grid ---------- */
   function renderCategories() {
     groupsRoot.textContent = "";
@@ -343,19 +635,29 @@
     return null;
   }
 
-  // The bar at the bottom of the pop-up: your choice + Submit
+  // The bar at the bottom of the pop-up: your choice + Submit (or the phone/PIN panel)
   function updateBar() {
     if (!current || !current.artists.length) { voteBar.hidden = true; return; }
-    var votedFor = votes[current.id];
     voteBar.hidden = false;
+
+    if (voterStep) {
+      voterPanel.hidden = false;
+      voteChoice.hidden = true;
+      voteSubmit.hidden = true;
+      return;
+    }
+    voterPanel.hidden = true;
+    voteChoice.hidden = false;
+
+    var votedFor = votes[current.id];
     voteBar.classList.toggle("is-done", !!votedFor);
 
     if (votedFor) {
       var a = findArtist(votedFor);
       var name = a ? a.name : "your artist";
       voteChoice.textContent = thanksFor
-        ? "\u2713 Thank you! Your vote for " + thanksFor + " has been recorded."
-        : "\u2713 You voted for " + name + " in this category.";
+        ? "✓ Thank you! Your vote for " + thanksFor + " has been recorded."
+        : "✓ You voted for " + name + " in this category.";
       voteSubmit.hidden = true;
       return;
     }
@@ -421,12 +723,12 @@
         avatar.textContent = initials(artist.name);
       }
 
-      card.appendChild(el("span", "nominee-check", "\u2713"));
+      card.appendChild(el("span", "nominee-check", "✓"));
       card.appendChild(avatar);
       card.appendChild(el("h3", "nominee-name", artist.name));
 
       card.addEventListener("click", function () {
-        if (busy) return;
+        if (busy || voterStep) return;
         selected = artist;
         paint();
         updateBar();
@@ -444,6 +746,8 @@
     current = info;
     selected = null;
     thanksFor = null;
+    voterStep = "";
+    pending = null;
     lastFocused = document.activeElement;
     modalTitle.textContent = info.title;
     modalGroup.textContent = info.group;
@@ -457,6 +761,8 @@
     modal.hidden = true;
     document.body.classList.remove("modal-open");
     current = null;
+    voterStep = "";
+    pending = null;
     if (lastFocused && lastFocused.focus) lastFocused.focus();
   }
 
@@ -471,70 +777,107 @@
 
   /* ---------- Voting ---------- */
   var MESSAGES = {
-    already_voted: "You have already voted in this category on this device.",
+    already_voted: "You have already voted in this category.",
     voting_closed: "Voting is closed.",
     too_many: "Too many votes from your network. Please try again later.",
     invalid_artist: "That artist is not available. Please refresh the page.",
+    not_registered: "This number is not registered yet. Please request a code.",
+    wrong_pin: "That PIN is not right. Please try again.",
+    locked: "Too many wrong PINs. Wait 15 minutes, or tap Forgot PIN to get a new code.",
+    bad_pin: "Your PIN must be 4 digits.",
+    bad_request: "Please check your details and try again.",
     network: "Connection problem. Please check your internet and try again.",
     server_error: "Something went wrong. Please try again."
   };
 
-  function sendVote(categoryId, artistId) {
-    if (!REMOTE) {
-      var all = loadLocalVotes();
-      if (all[categoryId]) return Promise.resolve({ ok: false, error: "already_voted" });
-      all[categoryId] = artistId;
-      saveLocalVotes(all);
-      return Promise.resolve({ ok: true });
+  // Demo mode only: saves the vote in this browser.
+  function demoVote(categoryId, artistId) {
+    var all = loadLocalVotes();
+    if (all[categoryId]) return { ok: false, error: "already_voted" };
+    all[categoryId] = artistId;
+    saveLocalVotes(all);
+    return { ok: true };
+  }
+
+  // After a vote attempt in LIVE mode: show success, or explain what went wrong.
+  function finishVote(job, result, phone) {
+    setBusy(false);
+    if (result.ok) {
+      votes[job.category.id] = job.artist.id;
+      rememberPhone(phone);
+      voterStep = "";
+      pending = null;
+      if (current && current.id === job.category.id) {
+        thanksFor = job.artist.name;
+        selected = null;
+      }
+      renderArtists();
+      renderCategories();
+      return;
     }
-    return callVote({
-      action: "vote",
-      category_id: categoryId,
-      artist_id: artistId,
-      device_id: getDeviceId(),
-      fingerprint: fingerprint()
-    }).then(function (res) {
-      return res.body && res.body.ok
-        ? { ok: true }
-        : { ok: false, error: (res.body && res.body.error) || "server_error" };
-    }).catch(function () {
-      return { ok: false, error: "network" };
-    });
+    handleVoteError(job, result.error, phone);
+  }
+
+  function handleVoteError(job, error, phone) {
+    if (error === "not_registered") {
+      // This number has no PIN yet: send a code so they can set one.
+      voterPhone = phone;
+      setBusy(true, "Sending code...");
+      requestCode(phone).then(function () {
+        showVoterStep("code", "This number is new. We sent a code to +" + phone + ". Enter it and choose a PIN.");
+      }).catch(function () {
+        voterFail("We could not send the code. Please try again.");
+      });
+      return;
+    }
+    if (error === "wrong_pin") {
+      pinInput.value = "";
+      return voterFail(MESSAGES.wrong_pin);
+    }
+    if (error === "locked") return voterFail(MESSAGES.locked);
+    if (error === "bad_pin") return voterFail(MESSAGES.bad_pin);
+
+    if (error === "already_voted") {
+      showToast(MESSAGES.already_voted);
+      cancelVoterStep();
+      callVote({ action: "status", device_id: getDeviceId() })
+        .then(function (r) { votes = (r.body && r.body.voted) || votes; })
+        .catch(function () { /* ignore */ })
+        .then(function () { renderArtists(); renderCategories(); });
+      return;
+    }
+
+    showToast(MESSAGES[error] || MESSAGES.server_error);
+    cancelVoterStep();
+    renderArtists();
   }
 
   function submitVote() {
     if (busy || !current || !selected) return;
     if (!votingOpen) { showToast(MESSAGES.voting_closed); return; }
 
+    if (REMOTE) {
+      // LIVE mode: the phone and PIN panel takes over from here.
+      beginVote(current, selected);
+      return;
+    }
+
+    // DEMO mode: no phone check, vote saved in this browser only.
     var category = current;
     var artist = selected;
-    busy = true;
-    updateBar();
-
-    sendVote(category.id, artist.id).then(function (result) {
-      if (result.ok) {
-        votes[category.id] = artist.id;
-        if (current && current.id === category.id) thanksFor = artist.name;
-        return;
-      }
+    var result = demoVote(category.id, artist.id);
+    if (result.ok) {
+      votes[category.id] = artist.id;
+      if (current && current.id === category.id) thanksFor = artist.name;
+    } else {
       showToast(MESSAGES[result.error] || MESSAGES.server_error);
-      if (result.error === "already_voted") {
-        // Sync with the server so the page shows what was voted before
-        if (REMOTE) {
-          return callVote({ action: "status", device_id: getDeviceId() })
-            .then(function (r) { votes = (r.body && r.body.voted) || votes; })
-            .catch(function () { /* ignore */ });
-        }
-        votes = loadLocalVotes();
-      }
-    }).then(function () {
-      busy = false;
-      if (current && current.id === category.id) {
-        if (votes[category.id]) selected = null;
-        renderArtists();
-      }
-      renderCategories();
-    });
+      votes = loadLocalVotes();
+    }
+    if (current && current.id === category.id) {
+      if (votes[category.id]) selected = null;
+      renderArtists();
+    }
+    renderCategories();
   }
 
   voteSubmit.addEventListener("click", submitVote);
