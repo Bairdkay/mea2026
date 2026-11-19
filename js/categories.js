@@ -514,12 +514,19 @@
     updateBar();
   }
 
+  // Shows a number like "+265 99 ••• ••76" so voters can see which number they are using.
+  function maskPhone(phone) {
+    if (!phone || phone.length < 6) return "";
+    return "+" + phone.slice(0, 3) + " " + phone.slice(3, 5) + " \u2022\u2022\u2022 \u2022\u2022" + phone.slice(-2);
+  }
+
   // Called when a visitor presses Submit in LIVE mode.
   function beginVote(category, artist) {
     pending = { category: category, artist: artist };
     if (storedPhone) {
       voterPhone = storedPhone;
-      showVoterStep("pin", "Enter your PIN to vote for " + artist.name + ".");
+      showVoterStep("pin", "Enter your PIN to vote for " + artist.name + ".\n" +
+        "Voting with " + maskPhone(storedPhone) + ".");
     } else {
       voterPhone = "";
       showVoterStep("phone", "Enter your phone number to vote for " + artist.name + ". We will send you a code.");
