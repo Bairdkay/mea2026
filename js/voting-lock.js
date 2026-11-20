@@ -16,13 +16,13 @@
   /* ---------- Styles ---------- */
   var style = document.createElement('style');
   style.textContent =
-    '.vote-countdown{max-width:640px;margin:10px auto 0;padding:16px 20px;' +
-    'border:1px solid rgba(212,175,55,.6);border-radius:16px;text-align:center;' +
+    '.vote-countdown{width:calc(100% - 28px);max-width:380px;margin:4px auto 18px;padding:10px 14px;' +
+    'border:1px solid rgba(212,175,55,.6);border-radius:14px;text-align:center;' +
     'background:linear-gradient(160deg,rgba(212,175,55,.14),rgba(212,175,55,.04))}' +
-    '.vote-countdown-label{font-size:.8rem;letter-spacing:3px;text-transform:uppercase;color:#d4af37}' +
-    '.vote-countdown-time{margin-top:6px;font-size:clamp(1.8rem,7vw,2.6rem);font-weight:800;' +
-    'letter-spacing:2px;color:#f1d27a;font-variant-numeric:tabular-nums}' +
-    '.vote-countdown-note{margin-top:4px;font-size:.9rem;color:rgba(255,255,255,.7)}' +
+    '.vote-countdown-label{font-size:.66rem;letter-spacing:2px;text-transform:uppercase;color:#d4af37}' +
+    '.vote-countdown-time{margin-top:2px;font-size:1.5rem;font-weight:800;line-height:1.2;' +
+    'letter-spacing:1px;color:#f1d27a;font-variant-numeric:tabular-nums}' +
+    '.vote-countdown-note{margin-top:2px;font-size:.75rem;line-height:1.4;color:rgba(255,255,255,.65)}' +
     'body.voting-locked .vote-submit{opacity:.35;cursor:not-allowed}' +
     'body.voting-locked .nominee-card{cursor:not-allowed}';
   document.head.appendChild(style);
@@ -80,7 +80,7 @@
     ensureBanner().innerHTML =
       '<p class="vote-countdown-label">Voting opens today at 12:00 PM</p>' +
       '<p class="vote-countdown-time" id="vote-countdown-time">--:--:--</p>' +
-      '<p class="vote-countdown-note">You can browse the categories now. Voting unlocks automatically.</p>';
+      '<p class="vote-countdown-note">Browse now. Voting unlocks automatically.</p>';
 
     function tick() {
       var left = OPEN_AT - Date.now();
