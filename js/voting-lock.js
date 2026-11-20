@@ -76,9 +76,10 @@
       banner.classList.add('is-open');
       banner.innerHTML =
         '<p class="vote-countdown-label">Voting is now open</p>' +
-        '<p class="vote-countdown-note">Choose a category and cast your vote.</p>';
-      setTimeout(function () { banner.style.opacity = '0'; }, 8000);
-      setTimeout(function () { banner.style.display = 'none'; }, 8700);
+        '<p class="vote-countdown-note">Loading voting...</p>';
+      // Reload so the page picks up the server's voting status.
+      // Random delay spreads the load when many people are waiting.
+      setTimeout(function () { window.location.reload(); }, 500 + Math.random() * 4000);
       return;
     }
 
