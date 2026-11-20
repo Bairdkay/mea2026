@@ -5,6 +5,11 @@
 //   set_pin  - after a phone code is confirmed, save the voter's 4-digit PIN
 //   vote     - cast a vote with phone number + PIN (no SMS needed)
 //
+// Voting window (enforced here on the server, Malawi time UTC+02:00):
+//   opens  20 Nov 2026, 12:00 noon
+//   closes 10 Dec 2026, 11:59:59 PM
+// The settings row voting_open must also be "true" (master switch).
+//
 // Secrets: VOTE_SALT (already set). SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are automatic.
 // =========================================================
 
@@ -20,6 +25,10 @@ const MAX_VOTES_PER_IP_PER_CATEGORY_PER_DAY = 25;
 const MAX_VOTES_PER_FINGERPRINT_PER_CATEGORY = 5;
 const MAX_WRONG_PINS = 5;      // after 5 wrong PINs the number is locked...
 const LOCK_MINUTES = 15;       // ...for 15 minutes
+
+// ----- Voting window (change these two lines if the dates change) -----
+const OPEN_AT = Date.parse("2026-11-20T12:00:00+02:00");
+const CLOSE_AT = Date.parse("2026-12-10T23:59:59+02:00");
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const PIN = /^\d{4}$/;
@@ -94,7 +103,13 @@ Deno.serve(async (req) => {
 
   const { data: setting } = await supabase
     .from("settings").select("value").eq("key", "voting_open").maybeSingle();
-  const votingOpen = setting?.value === "true";
+
+  const now = Date.now();
+  const switchOn = setting?.value === "true";
+  // Told to the page: open until the closing time (the page shows its own countdown before opening)
+  const votingOpen = switchOn && now < CLOSE_AT;
+  // Enforced when someone votes: only between opening time and closing time
+  const canVote = switchOn && now >= OPEN_AT && now < CLOSE_AT;
 
   // ---------- STATUS: which categories has this device already voted in? ----------
   if (body.action === "status") {
@@ -107,7 +122,7 @@ Deno.serve(async (req) => {
 
   // ---------- VOTE ----------
   if (body.action === "vote") {
-    if (!votingOpen) return json({ error: "voting_closed" }, 403);
+    if (!canVote) return json({ error: "voting_closed" }, 403);
 
     const categoryId = String(body.category_id ?? "");
     const artistId = String(body.artist_id ?? "");
