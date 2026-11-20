@@ -16,13 +16,14 @@
   /* ---------- Styles ---------- */
   var style = document.createElement('style');
   style.textContent =
-    '.vote-countdown{width:calc(100% - 28px);max-width:380px;margin:4px auto 18px;padding:10px 14px;' +
-    'border:1px solid rgba(212,175,55,.6);border-radius:14px;text-align:center;' +
+    '.vote-countdown{width:calc(100% - 28px) !important;max-width:340px !important;margin:4px auto 18px !important;padding:8px 12px !important;' +
+    'border:1px solid rgba(212,175,55,.6);border-radius:12px;text-align:center;' +
     'background:linear-gradient(160deg,rgba(212,175,55,.14),rgba(212,175,55,.04))}' +
-    '.vote-countdown-label{font-size:.66rem;letter-spacing:2px;text-transform:uppercase;color:#d4af37}' +
-    '.vote-countdown-time{margin-top:2px;font-size:1.5rem;font-weight:800;line-height:1.2;' +
-    'letter-spacing:1px;color:#f1d27a;font-variant-numeric:tabular-nums}' +
-    '.vote-countdown-note{margin-top:2px;font-size:.75rem;line-height:1.4;color:rgba(255,255,255,.65)}' +
+    '.vote-countdown p{margin:0 !important}' +
+    '.vote-countdown .vote-countdown-label{font-size:.6rem !important;letter-spacing:1.5px !important;line-height:1.3 !important;text-transform:uppercase;color:#d4af37}' +
+    '.vote-countdown .vote-countdown-time{margin-top:2px !important;font-size:1.25rem !important;font-weight:800;line-height:1.2 !important;' +
+    'letter-spacing:1px !important;color:#f1d27a;font-variant-numeric:tabular-nums}' +
+    '.vote-countdown .vote-countdown-note{margin-top:2px !important;font-size:.68rem !important;line-height:1.35 !important;color:rgba(255,255,255,.65)}' +
     'body.voting-locked .vote-submit{opacity:.35;cursor:not-allowed}' +
     'body.voting-locked .nominee-card{cursor:not-allowed}';
   document.head.appendChild(style);
