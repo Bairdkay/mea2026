@@ -457,8 +457,6 @@
   voteBar.insertBefore(voterPanel, voteChoice);
 
   function defaultButtonLabel(step) {
-    if (step === "phone") return "Send code";
-    if (step === "code") return "Confirm and vote";
     return "Vote";
   }
 
@@ -475,7 +473,7 @@
 
   function defaultMessage(step) {
     if (step === "phone") {
-      return "Enter your phone number. We will send you a code to confirm it is you. You only do this once.";
+      return "Enter your phone number and choose a 4-digit PIN. Remember it, you will use it for your other votes.";
     }
     if (step === "code") {
       return "Enter the code we sent to +" + voterPhone + " and choose a 4-digit PIN. You will use this PIN for future votes.";
@@ -487,17 +485,17 @@
     voterStep = step;
     voterError.textContent = "";
     phoneInput.hidden = step !== "phone";
-    codeInput.hidden = step !== "code";
-    newPinInput.hidden = step !== "code";
+    codeInput.hidden = true;                 // no SMS code any more
+    newPinInput.hidden = step !== "phone";   // new voters choose a PIN together with their number
     pinInput.hidden = step !== "pin";
-    voterAlt.hidden = step !== "pin";
+    voterAlt.hidden = true;                  // "Forgot PIN?" needed SMS, so it is switched off
     voterSwitch.hidden = step !== "pin";
     pinInput.value = "";
     newPinInput.value = "";
     codeInput.value = "";
     var heads = {
-      phone: ["Step 1 of 2", "Verify your number"],
-      code: ["Step 2 of 2", "Enter your code"],
+      phone: ["Your vote", "Enter your number and PIN"],
+      code: ["Your vote", "Enter your number and PIN"],
       pin: ["Quick vote", "Enter your PIN"]
     }[step];
     voterBadge.textContent = heads[0];
@@ -529,21 +527,22 @@
         "Voting with " + maskPhone(storedPhone) + ".");
     } else {
       voterPhone = "";
-      showVoterStep("phone", "Enter your phone number to vote for " + artist.name + ". We will send you a code.");
+      showVoterStep("phone", "Enter your phone number and choose a 4-digit PIN to vote for " + artist.name + ".");
     }
   }
 
+  // New voter: number + chosen PIN go straight to the server with the vote (no SMS).
   function sendCodeStep() {
     var phone = cleanPhone(phoneInput.value);
+    var pin = newPinInput.value.trim();
+    var job = pending;
+    if (!job) return cancelVoterStep();
     if (!phone) return voterFail("Enter a valid Malawi number, e.g. 0999 123 456.");
-    setBusy(true, "Sending code...");
-    requestCode(phone).then(function () {
-      voterPhone = phone;
-      showVoterStep("code", "We sent a code to +" + phone + ". Enter it and choose your 4-digit PIN.");
-    }).catch(function (e) {
-      voterFail(e.message === "rate"
-        ? "Please wait a few minutes before asking for another code."
-        : "We could not send the code. Please try again.");
+    if (!/^\d{4}$/.test(pin)) return voterFail("Choose a PIN of 4 digits.");
+    voterPhone = phone;
+    setBusy(true, "Voting...");
+    castVote(job, phone, pin).then(function (result) {
+      finishVote(job, result, phone);
     });
   }
 
@@ -864,20 +863,12 @@
   }
 
   function handleVoteError(job, error, phone) {
-    if (error === "not_registered") {
-      // This number has no PIN yet: send a code so they can set one.
-      voterPhone = phone;
-      setBusy(true, "Sending code...");
-      requestCode(phone).then(function () {
-        showVoterStep("code", "This number is new. We sent a code to +" + phone + ". Enter it and choose a PIN.");
-      }).catch(function () {
-        voterFail("We could not send the code. Please try again.");
-      });
-      return;
-    }
     if (error === "wrong_pin") {
       pinInput.value = "";
-      return voterFail(MESSAGES.wrong_pin);
+      newPinInput.value = "";
+      return voterFail(voterStep === "phone"
+        ? "This number has already been used with a different PIN. Enter that PIN, or use another number."
+        : MESSAGES.wrong_pin);
     }
     if (error === "locked") return voterFail(MESSAGES.locked);
     if (error === "bad_pin") return voterFail(MESSAGES.bad_pin);
@@ -902,8 +893,13 @@
     if (!votingOpen) { showToast(MESSAGES.voting_closed); return; }
 
     if (REMOTE) {
-      // LIVE mode: the phone and PIN panel takes over from here.
-      beginVote(current, selected);
+      // LIVE mode: one tap. The server allows one vote per device per category.
+      var liveJob = { category: current, artist: selected };
+      setBusy(true, "Submitting...");
+      updateBar();
+      castVote(liveJob, "", "").then(function (result) {
+        finishVote(liveJob, result, "");
+      });
       return;
     }
 

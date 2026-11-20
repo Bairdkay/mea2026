@@ -21,8 +21,9 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const MAX_VOTES_PER_IP_PER_CATEGORY_PER_DAY = 25;
-const MAX_VOTES_PER_FINGERPRINT_PER_CATEGORY = 5;
+// Many phones share one network and look alike, so these are generous. The real lock is one vote per device.
+const MAX_VOTES_PER_IP_PER_CATEGORY_PER_DAY = 300;
+const MAX_VOTES_PER_FINGERPRINT_PER_CATEGORY = 40;
 const MAX_WRONG_PINS = 5;      // after 5 wrong PINs the number is locked...
 const LOCK_MINUTES = 15;       // ...for 15 minutes
 
@@ -130,39 +131,6 @@ Deno.serve(async (req) => {
       return json({ error: "bad_request" }, 400);
     }
 
-    // ----- Check the voter's phone and PIN -----
-    const phone = cleanPhone(body.phone);
-    const pin = String(body.pin ?? "");
-    if (!phone || !PIN.test(pin)) return json({ error: "bad_request" }, 400);
-
-    const phoneHash = await sha256(`${salt}|phone|${phone}`);
-    const { data: voter } = await supabase
-      .from("voters").select("pin_hash, failed_attempts, locked_until")
-      .eq("phone_hash", phoneHash).maybeSingle();
-
-    if (!voter) return json({ error: "not_registered" }, 403);
-
-    if (voter.locked_until && new Date(voter.locked_until) > new Date()) {
-      return json({ error: "locked" }, 429);
-    }
-
-    const pinHash = await sha256(`${salt}|pin|${phoneHash}|${pin}`);
-    if (pinHash !== voter.pin_hash) {
-      const fails = voter.failed_attempts + 1;
-      const lockUntil = fails >= MAX_WRONG_PINS
-        ? new Date(Date.now() + LOCK_MINUTES * 60000).toISOString()
-        : null;
-      await supabase.from("voters")
-        .update({ failed_attempts: lockUntil ? 0 : fails, locked_until: lockUntil })
-        .eq("phone_hash", phoneHash);
-      return lockUntil ? json({ error: "locked" }, 429) : json({ error: "wrong_pin" }, 403);
-    }
-
-    // Correct PIN: clear the failed-attempt count
-    await supabase.from("voters")
-      .update({ failed_attempts: 0, locked_until: null })
-      .eq("phone_hash", phoneHash);
-
     // The artist must really belong to that category
     const { data: artist } = await supabase
       .from("artists").select("id")
@@ -202,7 +170,7 @@ Deno.serve(async (req) => {
       category_id: categoryId,
       artist_id: artistId,
       device_id: deviceId,
-      phone_hash: phoneHash,
+      phone_hash: null,
       fingerprint_hash: fpHash,
       ip_hash: ipHash,
     });
